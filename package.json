@@ -1,0 +1,41 @@
+{
+  "name": "@js-bits/process",
+  "version": "0.0.1",
+  "description": "Asynchronous multi-step processing",
+  "keywords": [
+    "javascript",
+    "asynchronous",
+    "async",
+    "processing",
+    "process",
+    "multi-step",
+    "multistep",
+    "steps",
+    "sequence",
+    "sequential"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "default": "./index.js"
+    }
+  },
+  "scripts": {
+    "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports named"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/js-bits/process"
+  },
+  "author": "https://github.com/apolo-gh",
+  "license": "ISC",
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "rollup": "^2.79.1"
+  }
+}

@@ -1,4 +1,8 @@
-export const steps = (...list) => ({
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+const steps = (...list) => ({
   start: async (args) =>
     list.reduce(async (prevStep, operation) => {
       const prevStepResult = await prevStep;
@@ -16,5 +20,9 @@ export const steps = (...list) => ({
     }, Promise.resolve(args)),
 });
 
-export const noop = async () => {};
-export const exit = async () => ({ exit: false });
+const noop = async () => {};
+const exit = async () => ({ exit: false });
+
+exports.exit = exit;
+exports.noop = noop;
+exports.steps = steps;
