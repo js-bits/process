@@ -18,4 +18,4 @@ export const steps = (...list) => ({
 });
 
 export const noop = async () => {};
-export const exit = async () => ({ exit: false });
+export const exit = async () => ({ exit: true });

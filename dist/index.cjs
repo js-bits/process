@@ -22,7 +22,7 @@ const steps = (...list) => ({
 });
 
 const noop = async () => {};
-const exit = async () => ({ exit: false });
+const exit = async () => ({ exit: true });
 
 exports.exit = exit;
 exports.noop = noop;
