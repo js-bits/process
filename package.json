@@ -24,7 +24,7 @@
     }
   },
   "scripts": {
-    "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports named",
+    "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports default",
     "lint": "eslint '**/*.{js,jsx}'",
     "prepare": "husky install",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
@@ -64,5 +64,9 @@
         "testEnvironment": "jsdom"
       }
     ]
+  },
+  "dependencies": {
+    "@js-bits/enumerate": "^0.7.0",
+    "@js-bits/executor": "^1.0.0"
   }
 }
