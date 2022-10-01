@@ -17,7 +17,7 @@ export const steps = (...list) => ({
     }, Promise.resolve(args)),
 });
 
-console.log('test')
+console.log('test');
 
 export const noop = async () => {};
 export const exit = async () => ({ exit: false });
