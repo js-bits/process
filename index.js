@@ -1,10 +1,11 @@
 export const steps = (...list) => ({
-  start: async (args) =>
+  start: async args =>
     list.reduce(async (prevStep, operation) => {
       const prevStepResult = await prevStep;
       if (Array.isArray(operation)) {
         return steps(...operation).start(prevStepResult);
-      } else if (typeof operation === "function") {
+      }
+      if (typeof operation === 'function') {
         const { exit, ...rest } = prevStepResult || {};
         if (!exit) {
           const result = await operation(rest);
@@ -12,7 +13,7 @@ export const steps = (...list) => ({
         }
         return prevStepResult;
       }
-      throw new Error("Invalid operation type");
+      throw new Error('Invalid operation type');
     }, Promise.resolve(args)),
 });
 
