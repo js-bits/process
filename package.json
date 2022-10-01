@@ -25,7 +25,9 @@
   },
   "scripts": {
     "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports named",
-    "lint": "eslint '**/*.{js,jsx}'"
+    "lint": "eslint '**/*.{js,jsx}'",
+    "prepare": "husky install",
+    "test": "echo 'TEST'"
   },
   "repository": {
     "type": "git",
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@js-bits/formalinter": "^0.3.1",
+    "husky": "^8.0.1",
     "rollup": "^2.79.1"
   },
   "prettier": "@js-bits/formalinter/.prettierrc.json",
