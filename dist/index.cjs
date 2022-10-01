@@ -18,8 +18,8 @@ class Process extends executor.Executor {
   }
 
   constructor(...steps) {
-    super((resolve, reject, args) => {
-      const processResult = steps.reduce(async (prevStep, operation) => {
+    super(async (resolve, reject, args) => {
+      const processResult = await steps.reduce(async (prevStep, operation) => {
         const prevStepResult = await prevStep;
         if (Array.isArray(operation)) {
           return new Process(...operation).start(prevStepResult);
@@ -36,7 +36,8 @@ class Process extends executor.Executor {
         error.name = Process.ProcessInstantiationError;
         throw error;
       }, Promise.resolve(args));
-      resolve(processResult);
+      const { exit, ...rest } = processResult;
+      resolve(rest);
     });
   }
 
@@ -51,33 +52,5 @@ class Process extends executor.Executor {
 }
 
 Object.assign(Process, ERRORS);
-
-const x = new Process(
-  args => {
-    console.log('step1', args);
-  },
-  [
-    async args => {
-      console.log('step1.1', args);
-    },
-    async args => {
-      console.log('step1.2', args);
-    },
-  ],
-  async args => {
-    console.log('step2', args);
-    return { exit: true };
-  },
-  async args => {
-    console.log('step3', args);
-  }
-);
-x.start({
-  a: 2,
-}).then(() => {
-  console.log('end');
-});
-
-console.log(x);
 
 module.exports = Process;
