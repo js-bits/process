@@ -56,7 +56,6 @@ const x = new Process(
   args => {
     console.log('step1', args);
   },
-  5,
   [
     async args => {
       console.log('step1.1', args);
