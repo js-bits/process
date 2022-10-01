@@ -39,7 +39,7 @@
   "author": "https://github.com/apolo-gh",
   "license": "ISC",
   "engines": {
-    "node": ">=14"
+    "node": ">=12"
   },
   "devDependencies": {
     "@js-bits/formalinter": "^0.3.1",
