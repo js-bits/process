@@ -34,11 +34,10 @@ class Process extends executor.Executor {
     });
 
     super(async (resolve, reject, args) => {
-      let exitProcess;
       resolve(
         await steps.reduce(async (prevStep, operation) => {
           const prevResult = await prevStep;
-          if (exitProcess) return prevResult;
+          if (prevResult.exit) return prevResult;
 
           let result;
           if (operation instanceof Process) {
@@ -48,9 +47,7 @@ class Process extends executor.Executor {
           } else if (typeof operation === 'function') {
             result = await operation(prevResult);
           }
-          const { exit, ...rest } = result || {};
-          if (exit) exitProcess = true;
-          return { ...rest, ...prevResult };
+          return { ...result, ...prevResult };
         }, Promise.resolve(args))
       );
     });

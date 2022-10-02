@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import exp from 'constants';
 import Process from './index.js';
 // import Process from './dist/index.cjs';
 // const Process = require('./dist/index.cjs');
@@ -114,6 +113,72 @@ describe('Process', () => {
     });
   });
 
+  describe('Process#start', () => {
+    describe('when functions are used', () => {
+      test('should be able pass execution results through the process', async () => {
+        const operation1 = jest.fn();
+        const operation2 = jest.fn();
+        operation1.mockReturnValue({ operation1Result: 444 }); // regular function
+        operation2.mockResolvedValue({ operation2Result: 555 }); // async function
+        const process = new Process(operation1, operation2);
+        const result = await process.start({ input: 1 });
+        expect(result).toEqual({ input: 1, operation1Result: 444, operation2Result: 555 });
+      });
+    });
+
+    describe('when promises are used', () => {
+      test('should be able pass execution results through the process', async () => {
+        const operation1 = Promise.resolve({ operation1Result: 222 });
+        const operation2 = Promise.resolve({ operation2Result: 333 });
+        const process = new Process(operation1, operation2);
+        const result = await process.start({ input: 111 });
+        expect(result).toEqual({ input: 111, operation1Result: 222, operation2Result: 333 });
+      });
+    });
+
+    describe('when another process are used', () => {
+      test('should be able pass execution results through the process', async () => {
+        const operation1 = jest.fn();
+        const operation2 = jest.fn();
+        operation1.mockReturnValue({ op1: 44 }); // regular function
+        operation2.mockResolvedValue({ op2: 55 }); // async function
+        const process = new Process(Promise.resolve({ promise1: 22 }), operation2);
+        const result = await new Process(operation1, process, Promise.resolve({ promise2: 33 })).start({ input: 11 });
+        expect(result).toEqual({ input: 11, op1: 44, op2: 55, promise1: 22, promise2: 33 });
+      });
+    });
+
+    describe('when an array are used', () => {
+      test('should be able pass execution results through the process', async () => {
+        const operation1 = jest.fn();
+        const operation2 = jest.fn();
+        operation1.mockReturnValue({ op1: 44 }); // regular function
+        operation2.mockResolvedValue({ op2: 55 }); // async function
+        const result = await new Process(
+          operation1,
+          [Promise.resolve({ promise1: 22 }), operation2],
+          Promise.resolve({ promise2: 33 })
+        ).start({ input: 11 });
+        expect(result).toEqual({ input: 11, op1: 44, op2: 55, promise1: 22, promise2: 33 });
+      });
+    });
+
+    describe('when exit:true is returned', () => {
+      test('should interrupt the process', async () => {
+        const operation1 = jest.fn();
+        const operation2 = jest.fn();
+        operation1.mockReturnValue({ op1: 4 });
+        operation2.mockReturnValue({ op2: 5, exit: true });
+        const result = await new Process(
+          operation1,
+          [Promise.resolve({ promise1: 2 }), operation2],
+          Promise.resolve({ promise2: 3 })
+        ).start({ input: 0 });
+        expect(result).toEqual({ input: 0, op1: 4, op2: 5, promise1: 2, exit: true });
+      });
+    });
+  });
+
   describe('Process.noop', () => {
     test('should be a promise', () => {
       expect(Process.noop).toEqual(expect.any(Promise));
@@ -145,8 +210,8 @@ describe('Process', () => {
         const operation = jest.fn();
         const result1 = await new Process(Process.exit).start({ a: 1 });
         const result2 = await new Process(Process.noop, Process.exit, operation).start({ b: 2 });
-        expect(result1).toEqual({ a: 1 });
-        expect(result2).toEqual({ b: 2 });
+        expect(result1).toEqual({ a: 1, exit: true });
+        expect(result2).toEqual({ b: 2, exit: true });
         expect(operation).not.toHaveBeenCalled();
       });
     });
