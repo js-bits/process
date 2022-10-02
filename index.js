@@ -13,26 +13,33 @@ class Process extends Executor {
     return 'Process';
   }
 
-  constructor(...steps) {
-    super((resolve, reject, args) => {
-      const processResult = steps.reduce(async (prevStep, operation) => {
-        const prevStepResult = await prevStep;
-        if (Array.isArray(operation)) {
-          return new Process(...operation).start(prevStepResult);
-        }
-        if (typeof operation === 'function') {
-          const { exit, ...rest } = prevStepResult || {};
-          if (!exit) {
-            const result = await operation(rest);
-            return { ...rest, ...result };
-          }
-          return prevStepResult;
-        }
-        const error = new Error(`Invalid operation type: ${typeof operation}`);
-        error.name = Process.InstantiationError;
-        throw error;
-      }, Promise.resolve(args));
-      resolve(processResult);
+  constructor(...input) {
+    // wrap into processes
+    const steps = input.map(operation => {
+      if (operation instanceof Process || typeof operation === 'function') {
+        return operation;
+      }
+      if (Array.isArray(operation)) {
+        return new Process(...operation);
+      }
+      const error = new Error(`Invalid operation type: ${operation === null ? 'null' : typeof operation}`);
+      error.name = Process.InstantiationError;
+      throw error;
+    });
+
+    super(async (resolve, reject, args) => {
+      let exitProcess;
+      resolve(
+        await steps.reduce(async (prevStep, /** @type Process */ operation) => {
+          const prevResult = await prevStep;
+          if (exitProcess) return prevResult;
+
+          const result = await operation.start(prevResult);
+          const { exit, ...rest } = result || {};
+          if (exit) exitProcess = true;
+          return { ...rest, ...result };
+        }, Promise.resolve(args))
+      );
     });
   }
 
