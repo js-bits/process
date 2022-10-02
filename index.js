@@ -1,8 +1,10 @@
 import enumerate from '@js-bits/enumerate';
 import { Executor } from '@js-bits/executor';
 
-const ERRORS = enumerate(String)`
-  ProcessInstantiationError
+const { Prefix } = enumerate;
+
+const ERRORS = enumerate(Prefix('Process|'))`
+  InstantiationError
 `;
 
 class Process extends Executor {
@@ -27,7 +29,7 @@ class Process extends Executor {
           return prevStepResult;
         }
         const error = new Error(`Invalid operation type: ${typeof operation}`);
-        error.name = Process.ProcessInstantiationError;
+        error.name = Process.InstantiationError;
         throw error;
       }, Promise.resolve(args));
       resolve(processResult);

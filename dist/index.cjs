@@ -7,8 +7,10 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var enumerate__default = /*#__PURE__*/_interopDefaultLegacy(enumerate);
 
-const ERRORS = enumerate__default["default"](String)`
-  ProcessInstantiationError
+const { Prefix } = enumerate__default["default"];
+
+const ERRORS = enumerate__default["default"](Prefix('Process|'))`
+  InstantiationError
 `;
 
 class Process extends executor.Executor {
@@ -33,7 +35,7 @@ class Process extends executor.Executor {
           return prevStepResult;
         }
         const error = new Error(`Invalid operation type: ${typeof operation}`);
-        error.name = Process.ProcessInstantiationError;
+        error.name = Process.InstantiationError;
         throw error;
       }, Promise.resolve(args));
       const { exit, ...rest } = processResult;

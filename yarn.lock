@@ -666,10 +666,10 @@
   resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.5.2.tgz#fa48b4800f77305ae833e0b0fad63f229fd89f6c"
   integrity sha512-VAOE7fk+bg72VEFPOAb/z0cjhwUgTMgQxJ2zl1Cx2PLTbiUZ04UjtmVJt828SlynzQSqE/jYu83gS28dNvgMGA==
 
-"@js-bits/enumerate@^0.7.0":
-  version "0.7.0"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.7.0.tgz#6630f7f92731d7d83c42ffe8337fc508ac43b7ec"
-  integrity sha512-dCZfLcnAPYvtJmEIADiHgy+JwrQG6cwz6WWd43dB1ywaU1G/G5REj9xPSFUrafD2lxxACF0Jy3pDQQXgtsOS5g==
+"@js-bits/enumerate@^0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.8.0.tgz#fbb961a0a323e99c8fe103de41ae3fa46a70dec2"
+  integrity sha512-y2CWSn3w7wIrz0fJXMxA7NVHqNGQV4Pj0LYVHSe2A0ieTm/Zk5RgvRfjTJlOtpFYf3jeVtkPYkU07FZPJ4jhhA==
 
 "@js-bits/eslint-config@^0.2.0":
   version "0.2.0"
