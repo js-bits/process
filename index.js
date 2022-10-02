@@ -16,7 +16,7 @@ class Process extends Executor {
   constructor(...input) {
     // wrap into processes
     const steps = input.map(operation => {
-      if (operation instanceof Process || typeof operation === 'function') {
+      if (operation instanceof Process || operation instanceof Promise || typeof operation === 'function') {
         return operation;
       }
       if (Array.isArray(operation)) {
@@ -30,14 +30,21 @@ class Process extends Executor {
     super(async (resolve, reject, args) => {
       let exitProcess;
       resolve(
-        await steps.reduce(async (prevStep, /** @type Process */ operation) => {
+        await steps.reduce(async (prevStep, operation) => {
           const prevResult = await prevStep;
           if (exitProcess) return prevResult;
 
-          const result = await operation.start(prevResult);
+          let result;
+          if (operation instanceof Process) {
+            result = await operation.start(prevResult);
+          } else if (operation instanceof Promise) {
+            result = await operation;
+          } else if (typeof operation === 'function') {
+            result = await operation(prevResult);
+          }
           const { exit, ...rest } = result || {};
           if (exit) exitProcess = true;
-          return { ...rest, ...result };
+          return { ...rest, ...prevResult };
         }, Promise.resolve(args))
       );
     });
@@ -48,9 +55,9 @@ class Process extends Executor {
    */
   start = super.execute;
 
-  static noop = async () => {};
+  static noop = Promise.resolve();
 
-  static exit = async () => ({ exit: true });
+  static exit = Promise.resolve({ exit: true });
 }
 
 Object.assign(Process, ERRORS);

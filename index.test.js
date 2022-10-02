@@ -1,4 +1,5 @@
-// import { jest } from '@jest/globals';
+import { jest } from '@jest/globals';
+import exp from 'constants';
 import Process from './index.js';
 // import Process from './dist/index.cjs';
 // const Process = require('./dist/index.cjs');
@@ -36,10 +37,20 @@ describe('Process', () => {
         });
       });
 
+      describe('when a Promise instance is passed', () => {
+        test('should create a Process instance', () => {
+          const process = new Process(Promise.resolve());
+          expect(process).toBeInstanceOf(Process);
+        });
+      });
+
       describe('when array of functions or processes is passed', () => {
         test('should create a Process instance', () => {
-          const operation = new Process([() => {}, () => {}]);
-          const process = new Process([() => {}, operation, () => {}]);
+          const operation = new Process(
+            () => {},
+            () => {}
+          );
+          const process = new Process([() => {}, operation, Promise.resolve()]);
           expect(process).toBeInstanceOf(Process);
         });
       });
@@ -104,20 +115,40 @@ describe('Process', () => {
   });
 
   describe('Process.noop', () => {
-    test('should return promise', () => {
-      expect(Process.noop()).toEqual(expect.any(Promise));
+    test('should be a promise', () => {
+      expect(Process.noop).toEqual(expect.any(Promise));
     });
     test('should resolve to undefined', () => {
-      expect(Process.noop()).resolves.toBeUndefined();
+      expect(Process.noop).resolves.toBeUndefined();
+    });
+    describe('when used', () => {
+      test('should do nothing and return passed arguments', async () => {
+        expect.assertions(2);
+        const result1 = await new Process(Process.noop).start({ a: 1 });
+        const result2 = await new Process(Process.noop, Process.noop).start({ b: 2 });
+        expect(result1).toEqual({ a: 1 });
+        expect(result2).toEqual({ b: 2 });
+      });
     });
   });
 
   describe('Process.exit', () => {
-    test('should return promise', () => {
-      expect(Process.exit()).toEqual(expect.any(Promise));
+    test('should be a promise', () => {
+      expect(Process.exit).toEqual(expect.any(Promise));
     });
     test('should resolve to undefined', () => {
-      expect(Process.exit()).resolves.toEqual({ exit: true });
+      expect(Process.exit).resolves.toEqual({ exit: true });
+    });
+    describe('when used', () => {
+      test('should interrupt the process and return passed arguments', async () => {
+        expect.assertions(3);
+        const operation = jest.fn();
+        const result1 = await new Process(Process.exit).start({ a: 1 });
+        const result2 = await new Process(Process.noop, Process.exit, operation).start({ b: 2 });
+        expect(result1).toEqual({ a: 1 });
+        expect(result2).toEqual({ b: 2 });
+        expect(operation).not.toHaveBeenCalled();
+      });
     });
   });
 });
