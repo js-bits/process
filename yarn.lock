@@ -676,15 +676,15 @@
   resolved "https://registry.yarnpkg.com/@js-bits/eslint-config/-/eslint-config-0.2.0.tgz#57f80dce8da2d9fb58811ac4070c17abd6a46ad9"
   integrity sha512-YiLUCxFLEaBAOuZCfLVaC+gci6jYb6mY1i5vp4Pngl/1qGHi3bsehxrvOXf4ERkVbA87M2K0dYoBm6IP+EFQXA==
 
-"@js-bits/executor@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@js-bits/executor/-/executor-1.0.0.tgz#6ca3192ad0688da7e011804c707e26b067500aba"
-  integrity sha512-R99cmg0xbLJ4uy+O9zfhveWVJJLRFiZIU3y1lZnl34OqVDCkMYK9lL+h5/9Bf9N4OuSF1uKWdz570xqR7YwQAg==
+"@js-bits/executor@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@js-bits/executor/-/executor-1.1.0.tgz#4d9c80772be9828d7c2bb1e78f845a751e21c982"
+  integrity sha512-pV//KAXhRY/CRMNCFw8Xk3oIbrD3WOO4r34U2iO4w+uufkfujelTHFA2eP2Uq2igUdSBQcdcRQyIcOfJ/HHwPw==
   dependencies:
-    "@js-bits/enumerate" "^0.5.1"
+    "@js-bits/enumerate" "^0.8.0"
     "@js-bits/performance" "^0.1.2"
     "@js-bits/timeout" "^0.2.1"
-    "@js-bits/xpromise" "^0.2.1"
+    "@js-bits/xpromise" "^0.3.0"
 
 "@js-bits/formalinter@^0.3.1":
   version "0.3.1"
@@ -724,6 +724,13 @@
   integrity sha512-UR3iA5D1g6dRDr1X7hi9koLPIfpFh0poCV1fgQZZtcYbpGMjB930ggDP6mwqv3UdE8pDxWWnJPHXCM0uUEEieQ==
   dependencies:
     "@js-bits/enumerate" "^0.5.1"
+
+"@js-bits/xpromise@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@js-bits/xpromise/-/xpromise-0.3.0.tgz#f962399e663136fd8d4ef12e6b872aa1505d342a"
+  integrity sha512-b8skrAj4FbupOqWZcLidXqQB9jwgmc3FOZthPpqrv+cGk+BuDeK1OquftIEltDdRnExdYQO8pfao1o2TFA06jA==
+  dependencies:
+    "@js-bits/enumerate" "^0.8.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
