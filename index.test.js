@@ -239,7 +239,7 @@ describe('Process', () => {
 
     describe('when argument is invalid', () => {
       describe('null', () => {
-        test('should throw InstantiationError error', () => {
+        test('should throw ExecutionError error', () => {
           expect.assertions(2);
           try {
             new Process().start(null);
@@ -250,13 +250,44 @@ describe('Process', () => {
         });
       });
       describe('object', () => {
-        test('should throw InstantiationError error', () => {
+        test('should throw ExecutionError error', () => {
           expect.assertions(2);
           try {
             new Process().start(new Promise(() => {}));
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');
             expect(error.message).toEqual('Invalid input type: [object Promise]');
+          }
+        });
+      });
+    });
+
+    describe('when operation return is invalid', () => {
+      describe('when boolean', () => {
+        test('should throw ExecutionError error', async () => {
+          expect.assertions(3);
+          const operation1 = Promise.resolve(true);
+          const operation2 = jest.fn();
+          const process = new Process(operation1, Process.noop, operation2);
+          try {
+            await process.start({ input: 111 });
+          } catch (error) {
+            expect(error.name).toEqual('Process|ExecutionError');
+            expect(error.message).toEqual('Invalid output type: boolean');
+          }
+          expect(operation2).not.toHaveBeenCalled();
+        });
+      });
+      describe('when null', () => {
+        test('should throw ExecutionError error', async () => {
+          expect.assertions(2);
+          const operation1 = Promise.resolve(null);
+          const process = new Process(operation1);
+          try {
+            await process.start();
+          } catch (error) {
+            expect(error.name).toEqual('Process|ExecutionError');
+            expect(error.message).toEqual('Invalid output type: null');
           }
         });
       });

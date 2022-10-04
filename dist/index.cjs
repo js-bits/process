@@ -60,6 +60,12 @@ class Process extends executor.Executor {
               // should be a function
               result = await operation(prevResult);
             }
+
+            if (result !== undefined && !isObject(result)) {
+              const error = new Error(`Invalid output type: ${getType(result)}`);
+              error.name = Process.ExecutionError;
+              throw error;
+            }
             return { ...result, ...prevResult };
           }, Promise.resolve(args))
         );
