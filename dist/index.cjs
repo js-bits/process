@@ -11,9 +11,18 @@ const { Prefix } = enumerate__default["default"];
 
 const ERRORS = enumerate__default["default"](Prefix('Process|'))`
   InstantiationError
+  ExecutionError
 `;
 
 const EXIT_CODE = { exit: true };
+
+const getType = value => {
+  if (value === null) return 'null';
+  if (typeof value === 'object') return String(value);
+  return typeof value;
+};
+
+const isObject = value => value && typeof value === 'object' && value.constructor === Object;
 
 class Process extends executor.Executor {
   // eslint-disable-next-line class-methods-use-this
@@ -30,12 +39,12 @@ class Process extends executor.Executor {
       if (Array.isArray(operation)) {
         return new Process(...operation);
       }
-      const error = new Error(`Invalid operation type: ${operation === null ? 'null' : typeof operation}`);
+      const error = new Error(`Invalid operation type: ${getType(operation)}`);
       error.name = Process.InstantiationError;
       throw error;
     });
 
-    super(async (resolve, reject, args) => {
+    super(async (resolve, reject, args = {}) => {
       try {
         resolve(
           await steps.reduce(async (prevStep, operation) => {
@@ -60,10 +69,19 @@ class Process extends executor.Executor {
     });
   }
 
+  execute(args) {
+    if (args !== undefined && !isObject(args)) {
+      const error = new Error(`Invalid input type: ${getType(args)}`);
+      error.name = Process.ExecutionError;
+      throw error;
+    }
+    return super.execute(args);
+  }
+
   /**
-   * Just an alias of {@link Executor#execute} method
+   * Just an alias of {@link Process#execute} method
    */
-  start = super.execute;
+  start = this.execute;
 
   /**
    * Shortcut
@@ -73,7 +91,16 @@ class Process extends executor.Executor {
   }
 
   static switch(key, options, defaultOption = Process.noop) {
-    return args => new Process(options[key]).start(args);
+    let errorMessage;
+    if (typeof key !== 'string') errorMessage = `Invalid "key" type: ${getType(key)}`;
+    else if (!isObject(options)) errorMessage = `Invalid "options" type: ${getType(options)}`;
+    if (errorMessage) {
+      const error = new Error(errorMessage);
+      error.name = Process.InstantiationError;
+      throw error;
+    }
+
+    return args => new Process(options[key] || defaultOption).start(args);
   }
 
   static noop = Promise.resolve();

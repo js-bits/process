@@ -115,6 +115,17 @@ describe('Process', () => {
   });
 
   describe('Process#start', () => {
+    describe('when called without input', () => {
+      test('should use empty object as input', async () => {
+        expect.assertions(1);
+        const operation = jest.fn();
+        operation.mockReturnValue({ result: 444 });
+        const process = new Process(operation);
+        const result = await process.start();
+        expect(result).toEqual({ result: 444 });
+      });
+    });
+
     describe('when functions are used', () => {
       test('should be able pass execution results through the process', async () => {
         expect.assertions(1);
@@ -225,6 +236,31 @@ describe('Process', () => {
         expect(result).toEqual({ input: 0, op1: 4, op2: 5, promise1: 2, exit: true });
       });
     });
+
+    describe('when argument is invalid', () => {
+      describe('null', () => {
+        test('should throw InstantiationError error', () => {
+          expect.assertions(2);
+          try {
+            new Process().start(null);
+          } catch (error) {
+            expect(error.name).toEqual('Process|ExecutionError');
+            expect(error.message).toEqual('Invalid input type: null');
+          }
+        });
+      });
+      describe('object', () => {
+        test('should throw InstantiationError error', () => {
+          expect.assertions(2);
+          try {
+            new Process().start(new Promise(() => {}));
+          } catch (error) {
+            expect(error.name).toEqual('Process|ExecutionError');
+            expect(error.message).toEqual('Invalid input type: [object Promise]');
+          }
+        });
+      });
+    });
   });
 
   describe('Process.noop', () => {
@@ -292,6 +328,126 @@ describe('Process', () => {
         expect(result2).toEqual({ call: 2, step1: true, step2: true });
         expect(step1).toHaveBeenCalledTimes(2);
         expect(step2).toHaveBeenCalledTimes(2);
+      });
+    });
+  });
+
+  describe('Process.switch', () => {
+    test('should return a function', () => {
+      expect(Process.switch('key', {})).toEqual(expect.any(Function));
+    });
+    describe('when called', () => {
+      test('should return a new Process each time', () => {
+        const process1 = Process.switch('key', {})({});
+        const process2 = Process.switch('key', {})({});
+        expect(process1).toEqual(expect.any(Process));
+        expect(process2).toEqual(expect.any(Process));
+        expect(process1).not.toBe(process2);
+      });
+    });
+    describe('when used', () => {
+      test('should switch between available options', async () => {
+        expect.assertions(8);
+        const option1 = jest.fn();
+        const option2 = jest.fn();
+        const option3 = jest.fn();
+        option1.mockReturnValue({ option1: true });
+        option2.mockReturnValue({ option2: true });
+        option3.mockReturnValue({ option3: true });
+        const result1 = await new Process(
+          Process.switch('option3', {
+            option1,
+            option2,
+            option3,
+          })
+        ).start({ call: 1 });
+        expect(result1).toEqual({ call: 1, option3: true });
+        expect(option1).toHaveBeenCalledTimes(0);
+        expect(option2).toHaveBeenCalledTimes(0);
+        expect(option3).toHaveBeenCalledTimes(1);
+        const result2 = await new Process(
+          Process.switch('option1', {
+            option1,
+            option2,
+            option3,
+          })
+        ).start({ call: 2 });
+        expect(result2).toEqual({ call: 2, option1: true });
+        expect(option1).toHaveBeenCalledTimes(1);
+        expect(option2).toHaveBeenCalledTimes(0);
+        expect(option3).toHaveBeenCalledTimes(1);
+      });
+
+      describe('when default action is provided', () => {
+        test("should use is other options don't match", async () => {
+          expect.assertions(4);
+          const option1 = jest.fn();
+          const option2 = jest.fn();
+          const defaultOption = jest.fn();
+          option1.mockReturnValue({ option1: true });
+          option2.mockReturnValue({ option2: true });
+          defaultOption.mockReturnValue({ defaultOption: true });
+          const result1 = await new Process(
+            Process.switch(
+              'unknown',
+              {
+                option1,
+                option2,
+              },
+              defaultOption
+            )
+          ).start({ call: 1 });
+          expect(result1).toEqual({ call: 1, defaultOption: true });
+          expect(option1).toHaveBeenCalledTimes(0);
+          expect(option2).toHaveBeenCalledTimes(0);
+          expect(defaultOption).toHaveBeenCalledTimes(1);
+        });
+        describe('when defaultOption argument is invalid', () => {
+          test('should throw InstantiationError error', () => {
+            expect.assertions(2);
+            try {
+              Process.switch('', {}, 123)({});
+            } catch (error) {
+              expect(error.name).toEqual('Process|InstantiationError');
+              expect(error.message).toEqual('Invalid operation type: number');
+            }
+          });
+        });
+      });
+    });
+    describe('when key argument is invalid', () => {
+      test('should throw InstantiationError error', () => {
+        expect.assertions(2);
+        try {
+          Process.switch(123, 123);
+        } catch (error) {
+          expect(error.name).toEqual('Process|InstantiationError');
+          expect(error.message).toEqual('Invalid "key" type: number');
+        }
+      });
+    });
+    describe('when options argument is invalid', () => {
+      describe('null', () => {
+        test('should throw InstantiationError error', () => {
+          expect.assertions(2);
+          try {
+            Process.switch('', null);
+          } catch (error) {
+            expect(error.name).toEqual('Process|InstantiationError');
+            expect(error.message).toEqual('Invalid "options" type: null');
+          }
+        });
+      });
+      describe('object', () => {
+        test('should throw InstantiationError error', () => {
+          expect.assertions(2);
+          try {
+            Process.switch('', new Promise(() => {}));
+          } catch (error) {
+            expect(error.name).toEqual('Process|InstantiationError');
+            expect(error.message).toEqual('Invalid "options" type: [object Promise]');
+          }
+        });
       });
     });
   });
