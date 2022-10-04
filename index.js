@@ -7,6 +7,8 @@ const ERRORS = enumerate(Prefix('Process|'))`
   InstantiationError
 `;
 
+const EXIT_CODE = { exit: true };
+
 class Process extends Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
@@ -28,6 +30,7 @@ class Process extends Executor {
     });
 
     super(async (resolve, reject, args) => {
+      try {
       resolve(
         await steps.reduce(async (prevStep, operation) => {
           const prevResult = await prevStep;
@@ -44,6 +47,9 @@ class Process extends Executor {
           return { ...result, ...prevResult };
         }, Promise.resolve(args))
       );
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
@@ -54,7 +60,7 @@ class Process extends Executor {
 
   static noop = Promise.resolve();
 
-  static exit = Promise.resolve({ exit: true });
+  static exit = Promise.resolve(EXIT_CODE);
 }
 
 Object.assign(Process, ERRORS);

@@ -13,6 +13,8 @@ const ERRORS = enumerate__default["default"](Prefix('Process|'))`
   InstantiationError
 `;
 
+const EXIT_CODE = { exit: true };
+
 class Process extends executor.Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
@@ -34,22 +36,26 @@ class Process extends executor.Executor {
     });
 
     super(async (resolve, reject, args) => {
-      resolve(
-        await steps.reduce(async (prevStep, operation) => {
-          const prevResult = await prevStep;
-          if (prevResult.exit) return prevResult;
+      try {
+        resolve(
+          await steps.reduce(async (prevStep, operation) => {
+            const prevResult = await prevStep;
+            if (prevResult.exit) return prevResult;
 
-          let result;
-          if (operation instanceof Process) {
-            result = await operation.start(prevResult);
-          } else if (operation instanceof Promise) {
-            result = await operation;
-          } else if (typeof operation === 'function') {
-            result = await operation(prevResult);
-          }
-          return { ...result, ...prevResult };
-        }, Promise.resolve(args))
-      );
+            let result;
+            if (operation instanceof Process) {
+              result = await operation.start(prevResult);
+            } else if (operation instanceof Promise) {
+              result = await operation;
+            } else if (typeof operation === 'function') {
+              result = await operation(prevResult);
+            }
+            return { ...result, ...prevResult };
+          }, Promise.resolve(args))
+        );
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
@@ -58,9 +64,17 @@ class Process extends executor.Executor {
    */
   start = super.execute;
 
+  static steps(...list) {
+    return args => new Process(...list).start(args);
+  }
+
+  static switch(key, options, defaultOption = Process.noop) {
+    return args => new Process(options[key]).start(args);
+  }
+
   static noop = Promise.resolve();
 
-  static exit = Promise.resolve({ exit: true });
+  static exit = Promise.resolve(EXIT_CODE);
 }
 
 Object.assign(Process, ERRORS);
