@@ -411,11 +411,10 @@ describe('Process', () => {
 
       describe('when default action is provided', () => {
         test("should use is other options don't match", async () => {
-          expect.assertions(4);
-          const option1 = jest.fn();
+          expect.assertions(3);
+          const option1 = Process.noop;
           const option2 = jest.fn();
           const defaultOption = jest.fn();
-          option1.mockReturnValue({ option1: true });
           option2.mockReturnValue({ option2: true });
           defaultOption.mockReturnValue({ defaultOption: true });
           const result1 = await new Process(
@@ -429,7 +428,6 @@ describe('Process', () => {
             )
           ).start({ call: 1 });
           expect(result1).toEqual({ call: 1, defaultOption: true });
-          expect(option1).toHaveBeenCalledTimes(0);
           expect(option2).toHaveBeenCalledTimes(0);
           expect(defaultOption).toHaveBeenCalledTimes(1);
         });

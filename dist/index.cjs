@@ -24,6 +24,9 @@ const getType = value => {
 
 const isObject = value => value && typeof value === 'object' && value.constructor === Object;
 
+// fixes issues with aws-xray-sdk wrapping global Promise
+const isPromise = value => value instanceof Promise || value instanceof Process.noop.constructor;
+
 class Process extends executor.Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
@@ -33,7 +36,7 @@ class Process extends executor.Executor {
   constructor(...input) {
     // wrap into processes
     const steps = input.map(operation => {
-      if (operation instanceof Process || operation instanceof Promise || typeof operation === 'function') {
+      if (operation instanceof Process || isPromise(operation) || typeof operation === 'function') {
         return operation;
       }
       if (Array.isArray(operation)) {
@@ -54,7 +57,7 @@ class Process extends executor.Executor {
             let result;
             if (operation instanceof Process) {
               result = await operation.start(prevResult);
-            } else if (operation instanceof Promise) {
+            } else if (isPromise(operation)) {
               result = await operation;
             } else {
               // should be a function
