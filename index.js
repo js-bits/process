@@ -41,7 +41,8 @@ class Process extends Executor {
             result = await operation.start(prevResult);
           } else if (operation instanceof Promise) {
             result = await operation;
-          } else if (typeof operation === 'function') {
+            } else {
+              // should be a function
             result = await operation(prevResult);
           }
           return { ...result, ...prevResult };
@@ -58,6 +59,12 @@ class Process extends Executor {
    */
   start = super.execute;
 
+  /**
+   * Shortcut
+   */
+  static steps(...list) {
+    return args => new Process(...list).start(args);
+  }
   static noop = Promise.resolve();
 
   static exit = Promise.resolve(EXIT_CODE);

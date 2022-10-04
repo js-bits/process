@@ -128,7 +128,7 @@ describe('Process', () => {
       });
 
       describe('when functions throws an error', () => {
-        test('should be able pass execution results through the process', async () => {
+        test('should reject with the error', async () => {
           expect.assertions(3);
           const operation1 = jest.fn();
           const operation2 = jest.fn();
@@ -159,7 +159,7 @@ describe('Process', () => {
         expect(result).toEqual({ input: 111, operation1Result: 222, operation2Result: 333 });
       });
       describe('when functions throws an error', () => {
-        test('should be able pass execution results through the process', done => {
+        test('should reject with the error', done => {
           expect.assertions(3);
           const operation1 = jest.fn();
           const operation2 = jest.fn();
@@ -261,6 +261,37 @@ describe('Process', () => {
         expect(result1).toEqual({ a: 1, exit: true });
         expect(result2).toEqual({ b: 2, exit: true });
         expect(operation).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Process.steps', () => {
+    test('should return a function', () => {
+      expect(Process.steps()).toEqual(expect.any(Function));
+    });
+    describe('when called', () => {
+      test('should return a new Process each time', () => {
+        const process1 = Process.steps(() => {})({});
+        const process2 = Process.steps(() => {})({});
+        expect(process1).toEqual(expect.any(Process));
+        expect(process2).toEqual(expect.any(Process));
+        expect(process1).not.toBe(process2);
+      });
+    });
+    describe('when used', () => {
+      test('should interrupt the process and return passed arguments', async () => {
+        expect.assertions(4);
+        const step1 = jest.fn();
+        const step2 = jest.fn();
+        step1.mockReturnValue({ step1: true });
+        step2.mockReturnValue({ step2: true });
+        const operation = Process.steps(step1, step2);
+        const result1 = await new Process(operation).start({ call: 1 });
+        const result2 = await new Process(operation).start({ call: 2 });
+        expect(result1).toEqual({ call: 1, step1: true, step2: true });
+        expect(result2).toEqual({ call: 2, step1: true, step2: true });
+        expect(step1).toHaveBeenCalledTimes(2);
+        expect(step2).toHaveBeenCalledTimes(2);
       });
     });
   });
