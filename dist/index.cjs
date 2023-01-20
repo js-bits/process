@@ -69,7 +69,7 @@ class Process extends executor.Executor {
               error.name = Process.ExecutionError;
               throw error;
             }
-            return { ...result, ...prevResult };
+            return { ...prevResult, ...result };
           }, Promise.resolve(args))
         );
       } catch (error) {
@@ -99,7 +99,7 @@ class Process extends executor.Executor {
     return args => new Process(...list).start(args);
   }
 
-  static switch(key, options, defaultOption = Process.noop) {
+  static switch(key, options, fallback = Process.noop) {
     let errorMessage;
     if (typeof key !== 'string') errorMessage = `Invalid "key" type: ${getType(key)}`;
     else if (!isObject(options)) errorMessage = `Invalid "options" type: ${getType(options)}`;
@@ -109,7 +109,7 @@ class Process extends executor.Executor {
       throw error;
     }
 
-    return args => new Process(options[key] || defaultOption).start(args);
+    return args => new Process(options[key] || fallback).start(args);
   }
 
   static noop = Promise.resolve();

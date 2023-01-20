@@ -65,7 +65,7 @@
     ]
   },
   "dependencies": {
-    "@js-bits/enumerate": "^0.8.0",
+    "@js-bits/enumerate": "^0.8.1",
     "@js-bits/executor": "^1.1.0"
   }
 }
