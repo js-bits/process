@@ -33,9 +33,9 @@ class Process extends executor.Executor {
     return 'Process';
   }
 
-  constructor(...input) {
+  constructor(...args) {
     // wrap into processes
-    const steps = input.map(operation => {
+    const steps = args.map(operation => {
       if (operation instanceof Process || isPromise(operation) || typeof operation === 'function') {
         return operation;
       }
@@ -47,30 +47,28 @@ class Process extends executor.Executor {
       throw error;
     });
 
-    super(async (resolve, reject, args = {}) => {
+    super(async (resolve, reject, input) => {
       try {
         resolve(
           await steps.reduce(async (prevStep, operation) => {
-            const prevResult = await prevStep;
-            if (prevResult.exit) return prevResult;
+            const prevOut = await prevStep;
+            if (prevOut && prevOut.exit) return prevOut;
 
-            let result;
-            if (operation instanceof Process) {
-              result = await operation.start(prevResult);
-            } else if (isPromise(operation)) {
-              result = await operation;
-            } else {
-              // should be a function
-              result = await operation(prevResult);
-            }
+            const newOut = await this.runStep(operation, { ...input, ...prevOut });
 
-            if (result !== undefined && !isObject(result)) {
-              const error = new Error(`Invalid output type: ${getType(result)}`);
-              error.name = Process.ExecutionError;
-              throw error;
+            if (prevOut || newOut) {
+              const overlappingProps = Object.keys(prevOut || []).filter(
+                key => newOut && Object.prototype.hasOwnProperty.call(newOut, key)
+              );
+              if (overlappingProps.length) {
+                const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
+                error.name = Process.ExecutionError;
+                throw error;
+              }
+              return { ...prevOut, ...newOut };
             }
-            return { ...prevResult, ...result };
-          }, Promise.resolve(args))
+            return undefined;
+          }, Promise.resolve())
         );
       } catch (error) {
         reject(error);
@@ -78,13 +76,34 @@ class Process extends executor.Executor {
     });
   }
 
-  execute(args) {
-    if (args !== undefined && !isObject(args)) {
-      const error = new Error(`Invalid input type: ${getType(args)}`);
+  // eslint-disable-next-line class-methods-use-this
+  async runStep(operation, input) {
+    let output;
+    if (operation instanceof Process) {
+      output = await operation.start(input);
+    } else if (isPromise(operation)) {
+      output = await operation;
+    } else {
+      // should be a function
+      output = await operation(input);
+    }
+
+    if (output === undefined || isObject(output)) {
+      return output;
+    }
+
+    const error = new Error(`Invalid output type: ${getType(output)}`);
+    error.name = Process.ExecutionError;
+    throw error;
+  }
+
+  execute(input) {
+    if (input !== undefined && !isObject(input)) {
+      const error = new Error(`Invalid input type: ${getType(input)}`);
       error.name = Process.ExecutionError;
       throw error;
     }
-    return super.execute(args);
+    return super.execute(input);
   }
 
   /**
@@ -96,7 +115,7 @@ class Process extends executor.Executor {
    * Shortcut
    */
   static steps(...list) {
-    return args => new Process(...list).start(args);
+    return input => new Process(...list).start(input);
   }
 
   static switch(key, options, fallback = Process.noop) {
@@ -109,14 +128,18 @@ class Process extends executor.Executor {
       throw error;
     }
 
-    return args => new Process(options[key] || fallback).start(args);
+    return input => new Process(options[key] || fallback).start(input);
   }
 
+  /**
+   * @type {Promise}
+   */
   static noop = Promise.resolve();
 
   static exit = Promise.resolve(EXIT_CODE);
 }
 
 Object.assign(Process, ERRORS);
+Object.freeze(Process);
 
 module.exports = Process;

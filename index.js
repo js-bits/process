@@ -27,9 +27,9 @@ class Process extends Executor {
     return 'Process';
   }
 
-  constructor(...input) {
+  constructor(...args) {
     // wrap into processes
-    const steps = input.map(operation => {
+    const steps = args.map(operation => {
       if (operation instanceof Process || isPromise(operation) || typeof operation === 'function') {
         return operation;
       }
@@ -72,13 +72,13 @@ class Process extends Executor {
     });
   }
 
-  execute(args) {
-    if (args !== undefined && !isObject(args)) {
-      const error = new Error(`Invalid input type: ${getType(args)}`);
+  execute(input) {
+    if (input !== undefined && !isObject(input)) {
+      const error = new Error(`Invalid input type: ${getType(input)}`);
       error.name = Process.ExecutionError;
       throw error;
     }
-    return super.execute(args);
+    return super.execute(input);
   }
 
   /**
@@ -90,7 +90,7 @@ class Process extends Executor {
    * Shortcut
    */
   static steps(...list) {
-    return args => new Process(...list).start(args);
+    return input => new Process(...list).start(input);
   }
 
   static switch(key, options, fallback = Process.noop) {
@@ -103,9 +103,12 @@ class Process extends Executor {
       throw error;
     }
 
-    return args => new Process(options[key] || fallback).start(args);
+    return input => new Process(options[key] || fallback).start(input);
   }
 
+  /**
+   * @type {Promise}
+   */
   static noop = Promise.resolve();
 
   static exit = Promise.resolve(EXIT_CODE);
