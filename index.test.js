@@ -58,48 +58,48 @@ describe('Process', () => {
 
     describe('when steps are invalid', () => {
       describe('when number is passed', () => {
-        test('should throw InstantiationError', () => {
+        test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
             new Process(3);
           } catch (error) {
-            expect(error.name).toEqual(Process.InstantiationError);
+            expect(error.name).toEqual(Process.InitializationError);
             expect(error.message).toEqual('Invalid "operation" type: number');
           }
         });
       });
 
       describe('when null is passed', () => {
-        test('should throw InstantiationError', () => {
+        test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
             new Process(null);
           } catch (error) {
-            expect(error.name).toEqual(Process.InstantiationError);
+            expect(error.name).toEqual(Process.InitializationError);
             expect(error.message).toEqual('Invalid "operation" type: null');
           }
         });
       });
 
       describe('when string is passed', () => {
-        test('should throw InstantiationError', () => {
+        test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
             new Process('string');
           } catch (error) {
-            expect(error.name).toEqual(Process.InstantiationError);
+            expect(error.name).toEqual(Process.InitializationError);
             expect(error.message).toEqual('Invalid "operation" type: string');
           }
         });
       });
 
       describe('when array is passed', () => {
-        test('should throw InstantiationError', () => {
+        test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
             new Process([() => {}, 'string']);
           } catch (error) {
-            expect(error.name).toEqual(Process.InstantiationError);
+            expect(error.name).toEqual(Process.InitializationError);
             expect(error.message).toEqual('Invalid "operation" type: string');
           }
         });
@@ -432,12 +432,12 @@ describe('Process', () => {
           expect(defaultOption).toHaveBeenCalledTimes(1);
         });
         describe('when defaultOption argument is invalid', () => {
-          test('should throw InstantiationError error', () => {
+          test('should throw InitializationError error', () => {
             expect.assertions(2);
             try {
               Process.switch('', {}, 123)({});
             } catch (error) {
-              expect(error.name).toEqual('Process|InstantiationError');
+              expect(error.name).toEqual('Process|InitializationError');
               expect(error.message).toEqual('Invalid "operation" type: number');
             }
           });
@@ -445,35 +445,35 @@ describe('Process', () => {
       });
     });
     describe('when key argument is invalid', () => {
-      test('should throw InstantiationError error', () => {
+      test('should throw InitializationError error', () => {
         expect.assertions(2);
         try {
           Process.switch(123, 123);
         } catch (error) {
-          expect(error.name).toEqual('Process|InstantiationError');
+          expect(error.name).toEqual('Process|InitializationError');
           expect(error.message).toEqual('Invalid "switch:key" type: number');
         }
       });
     });
     describe('when options argument is invalid', () => {
       describe('null', () => {
-        test('should throw InstantiationError error', () => {
+        test('should throw InitializationError error', () => {
           expect.assertions(2);
           try {
             Process.switch('', null);
           } catch (error) {
-            expect(error.name).toEqual('Process|InstantiationError');
+            expect(error.name).toEqual('Process|InitializationError');
             expect(error.message).toEqual('Invalid "switch:options" type: null');
           }
         });
       });
       describe('object', () => {
-        test('should throw InstantiationError error', () => {
+        test('should throw InitializationError error', () => {
           expect.assertions(2);
           try {
             Process.switch('', new Promise(() => {}));
           } catch (error) {
-            expect(error.name).toEqual('Process|InstantiationError');
+            expect(error.name).toEqual('Process|InitializationError');
             expect(error.message).toEqual('Invalid "switch:options" type: [object Promise]');
           }
         });

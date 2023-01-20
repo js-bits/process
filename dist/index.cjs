@@ -12,7 +12,7 @@ var enumerate__default = /*#__PURE__*/_interopDefaultLegacy(enumerate);
 const { Prefix } = enumerate__default["default"];
 
 const ERRORS = enumerate__default["default"](Prefix('Process|'))`
-  InstantiationError
+  InitializationError
   ExecutionError
 `;
 
@@ -31,7 +31,7 @@ const isPromise = value => value instanceof Promise || value instanceof Process.
 
 const check = (value, name) => {
   let isValid;
-  let errorName = Process.InstantiationError;
+  let errorName = Process.InitializationError;
   // eslint-disable-next-line default-case
   switch (name) {
     case 'operation':

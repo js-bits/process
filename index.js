@@ -5,7 +5,7 @@ import { Executor } from '@js-bits/executor';
 const { Prefix } = enumerate;
 
 const ERRORS = enumerate(Prefix('Process|'))`
-  InstantiationError
+  InitializationError
   ExecutionError
 `;
 
@@ -24,7 +24,7 @@ const isPromise = value => value instanceof Promise || value instanceof Process.
 
 const check = (value, name) => {
   let isValid;
-  let errorName = Process.InstantiationError;
+  let errorName = Process.InitializationError;
   // eslint-disable-next-line default-case
   switch (name) {
     case 'operation':
