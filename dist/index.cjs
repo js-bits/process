@@ -7,6 +7,8 @@ function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'defau
 
 var enumerate__default = /*#__PURE__*/_interopDefaultLegacy(enumerate);
 
+/* eslint-disable no-use-before-define */
+
 const { Prefix } = enumerate__default["default"];
 
 const ERRORS = enumerate__default["default"](Prefix('Process|'))`
@@ -27,6 +29,33 @@ const isObject = value => value && typeof value === 'object' && value.constructo
 // fixes issues with aws-xray-sdk wrapping global Promise
 const isPromise = value => value instanceof Promise || value instanceof Process.noop.constructor;
 
+const check = (value, name) => {
+  let isValid;
+  let errorName = Process.InstantiationError;
+  // eslint-disable-next-line default-case
+  switch (name) {
+    case 'operation':
+      isValid = value instanceof Process || isPromise(value) || typeof value === 'function';
+      break;
+    case 'switch:key':
+      isValid = typeof value === 'string';
+      break;
+    case 'switch:options':
+      isValid = isObject(value);
+      break;
+    case 'input':
+    case 'output':
+      isValid = value === undefined || isObject(value);
+      errorName = Process.ExecutionError;
+      break;
+  }
+  if (isValid) return true;
+
+  const error = new Error(`Invalid "${name}" type: ${getType(value)}`);
+  error.name = errorName;
+  throw error;
+};
+
 class Process extends executor.Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
@@ -36,39 +65,33 @@ class Process extends executor.Executor {
   constructor(...args) {
     // wrap into processes
     const steps = args.map(operation => {
-      if (operation instanceof Process || isPromise(operation) || typeof operation === 'function') {
-        return operation;
-      }
       if (Array.isArray(operation)) {
         return new Process(...operation);
       }
-      const error = new Error(`Invalid operation type: ${getType(operation)}`);
-      error.name = Process.InstantiationError;
-      throw error;
+      check(operation, 'operation');
+      return operation;
     });
 
-    super(async (resolve, reject, input) => {
+    super(async (resolve, reject, input = {}) => {
       try {
         resolve(
           await steps.reduce(async (prevStep, operation) => {
-            const prevOut = await prevStep;
-            if (prevOut && prevOut.exit) return prevOut;
+            const prevResult = await prevStep;
+            if (prevResult.exit) return prevResult;
 
-            const newOut = await this.runStep(operation, { ...input, ...prevOut });
-
-            if (prevOut || newOut) {
-              const overlappingProps = Object.keys(prevOut || []).filter(
-                key => newOut && Object.prototype.hasOwnProperty.call(newOut, key)
-              );
-              if (overlappingProps.length) {
-                const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
-                error.name = Process.ExecutionError;
-                throw error;
-              }
-              return { ...prevOut, ...newOut };
+            let result;
+            if (operation instanceof Process) {
+              result = await operation.start(prevResult);
+            } else if (isPromise(operation)) {
+              result = await operation;
+            } else {
+              // should be a function
+              result = await operation(prevResult);
             }
-            return undefined;
-          }, Promise.resolve())
+
+            check(result, 'output');
+            return { ...result, ...prevResult };
+          }, Promise.resolve(input))
         );
       } catch (error) {
         reject(error);
@@ -76,33 +99,61 @@ class Process extends executor.Executor {
     });
   }
 
+  // super(async (resolve, reject, input) => {
+  //   try {
+  //     resolve(
+  //       await steps.reduce(async (prevStep, operation) => {
+  //         const prevOut = await prevStep;
+  //         if (prevOut && prevOut.exit) return prevOut;
+
+  //         const newOut = await this.runStep(operation, { ...input, ...prevOut });
+  //         let output;
+  //         if (operation instanceof Process) {
+  //           output = await operation.start(input);
+  //         } else if (isPromise(operation)) {
+  //           output = await operation;
+  //         } else {
+  //           output = await operation(input); // supposed be a function
+  //         }
+  //         check(output, 'output');
+  //       }, Promise.resolve())
+  //     );
+  //   } catch (error) {
+  //     reject(error);
+  //   }
+  // });
+
+  // if (prevOut || newOut) {
+  //   const overlappingProps = Object.keys(prevOut || []).filter(
+  //     key => newOut && Object.prototype.hasOwnProperty.call(newOut, key)
+  //   );
+  //   if (overlappingProps.length) {
+  //     const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
+  //     error.name = Process.ExecutionError;
+  //     throw error;
+  //   }
+  //   return { ...prevOut, ...newOut };
+  // }
+  // return undefined;
+
+  // // eslint-disable-next-line class-methods-use-this
+  // async runStep(operation, input) {
+  //   let output;
+  //   if (operation instanceof Process) {
+  //     output = await operation.start(input);
+  //   } else if (isPromise(operation)) {
+  //     output = await operation;
+  //   } else {
+  //     output = await operation(input); // supposed be a function
+  //   }
+  //   check(output, 'output');
+  //   return output;
+  // }
+
   // eslint-disable-next-line class-methods-use-this
-  async runStep(operation, input) {
-    let output;
-    if (operation instanceof Process) {
-      output = await operation.start(input);
-    } else if (isPromise(operation)) {
-      output = await operation;
-    } else {
-      // should be a function
-      output = await operation(input);
-    }
-
-    if (output === undefined || isObject(output)) {
-      return output;
-    }
-
-    const error = new Error(`Invalid output type: ${getType(output)}`);
-    error.name = Process.ExecutionError;
-    throw error;
-  }
 
   execute(input) {
-    if (input !== undefined && !isObject(input)) {
-      const error = new Error(`Invalid input type: ${getType(input)}`);
-      error.name = Process.ExecutionError;
-      throw error;
-    }
+    check(input, 'input');
     return super.execute(input);
   }
 
@@ -119,15 +170,8 @@ class Process extends executor.Executor {
   }
 
   static switch(key, options, fallback = Process.noop) {
-    let errorMessage;
-    if (typeof key !== 'string') errorMessage = `Invalid "key" type: ${getType(key)}`;
-    else if (!isObject(options)) errorMessage = `Invalid "options" type: ${getType(options)}`;
-    if (errorMessage) {
-      const error = new Error(errorMessage);
-      error.name = Process.InstantiationError;
-      throw error;
-    }
-
+    check(key, 'switch:key');
+    check(options, 'switch:options');
     return input => new Process(options[key] || fallback).start(input);
   }
 
