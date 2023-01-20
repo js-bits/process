@@ -13,10 +13,10 @@ describe('Process', () => {
       });
 
       describe('when executed', () => {
-        test('should return passed arguments', async () => {
+        test('should return undefined', async () => {
           expect.assertions(1);
           const process = new Process();
-          await expect(process.start({ prop: 123 })).resolves.toEqual({ prop: 123 });
+          await expect(process.start({ prop: 123 })).resolves.toBeUndefined();
         });
       });
     });
@@ -135,7 +135,7 @@ describe('Process', () => {
         operation2.mockReturnValue(Promise.resolve({ operation2Result: 555 })); // async function
         const process = new Process(operation1, operation2);
         const result = await process.start({ input: 1 });
-        expect(result).toEqual({ input: 1, operation1Result: 444, operation2Result: 555 });
+        expect(result).toEqual({ operation1Result: 444, operation2Result: 555 });
       });
 
       describe('when functions throws an error', () => {
@@ -167,7 +167,7 @@ describe('Process', () => {
         const operation2 = Promise.resolve({ operation2Result: 333 });
         const process = new Process(operation1, Process.noop, operation2);
         const result = await process.start({ input: 111 });
-        expect(result).toEqual({ input: 111, operation1Result: 222, operation2Result: 333 });
+        expect(result).toEqual({ operation1Result: 222, operation2Result: 333 });
       });
       describe('when functions throws an error', () => {
         test('should reject with the error', done => {
@@ -202,7 +202,7 @@ describe('Process', () => {
         operation2.mockReturnValue(Promise.resolve({ op2: 55 })); // async function
         const process = new Process(Promise.resolve({ promise1: 22 }), Process.noop, operation2);
         const result = await new Process(operation1, process, Promise.resolve({ promise2: 33 })).start({ input: 11 });
-        expect(result).toEqual({ input: 11, op1: 44, op2: 55, promise1: 22, promise2: 33 });
+        expect(result).toEqual({ op1: 44, op2: 55, promise1: 22, promise2: 33 });
       });
     });
 
@@ -217,7 +217,7 @@ describe('Process', () => {
           [Promise.resolve({ promise1: 22 }), Process.noop, operation2],
           Promise.resolve({ promise2: 33 })
         ).start({ input: 11 });
-        expect(result).toEqual({ input: 11, op1: 44, op2: 55, promise1: 22, promise2: 33 });
+        expect(result).toEqual({ op1: 44, op2: 55, promise1: 22, promise2: 33 });
       });
     });
 
@@ -233,7 +233,7 @@ describe('Process', () => {
           [Promise.resolve({ promise1: 2 }), operation2],
           Promise.resolve({ promise2: 3 })
         ).start({ input: 0 });
-        expect(result).toEqual({ input: 0, op1: 4, op2: 5, promise1: 2, exit: true });
+        expect(result).toEqual({ op1: 4, op2: 5, promise1: 2, exit: true });
       });
     });
 
@@ -302,12 +302,12 @@ describe('Process', () => {
       expect(Process.noop).resolves.toBeUndefined();
     });
     describe('when used', () => {
-      test('should do nothing and return passed arguments', async () => {
+      test('should do nothing and return empty object', async () => {
         expect.assertions(2);
         const result1 = await new Process(Process.noop).start({ a: 1 });
         const result2 = await new Process(Process.noop, Process.noop).start({ b: 2 });
-        expect(result1).toEqual({ a: 1 });
-        expect(result2).toEqual({ b: 2 });
+        expect(result1).toEqual({});
+        expect(result2).toEqual({});
       });
     });
   });
@@ -320,13 +320,13 @@ describe('Process', () => {
       expect(Process.exit).resolves.toEqual({ exit: true });
     });
     describe('when used', () => {
-      test('should interrupt the process and return passed arguments', async () => {
+      test('should interrupt the process and return empty object', async () => {
         expect.assertions(3);
         const operation = jest.fn();
         const result1 = await new Process(Process.exit).start({ a: 1 });
         const result2 = await new Process(Process.noop, Process.exit, operation).start({ b: 2 });
-        expect(result1).toEqual({ a: 1, exit: true });
-        expect(result2).toEqual({ b: 2, exit: true });
+        expect(result1).toEqual({ exit: true });
+        expect(result2).toEqual({ exit: true });
         expect(operation).not.toHaveBeenCalled();
       });
     });
@@ -346,7 +346,7 @@ describe('Process', () => {
       });
     });
     describe('when used', () => {
-      test('should interrupt the process and return passed arguments', async () => {
+      test('should interrupt the process and return empty object', async () => {
         expect.assertions(4);
         const step1 = jest.fn();
         const step2 = jest.fn();
@@ -355,8 +355,8 @@ describe('Process', () => {
         const operation = Process.steps(step1, step2);
         const result1 = await new Process(operation).start({ call: 1 });
         const result2 = await new Process(operation).start({ call: 2 });
-        expect(result1).toEqual({ call: 1, step1: true, step2: true });
-        expect(result2).toEqual({ call: 2, step1: true, step2: true });
+        expect(result1).toEqual({ step1: true, step2: true });
+        expect(result2).toEqual({ step1: true, step2: true });
         expect(step1).toHaveBeenCalledTimes(2);
         expect(step2).toHaveBeenCalledTimes(2);
       });
@@ -392,7 +392,7 @@ describe('Process', () => {
             option3,
           })
         ).start({ call: 1 });
-        expect(result1).toEqual({ call: 1, option3: true });
+        expect(result1).toEqual({ option3: true });
         expect(option1).toHaveBeenCalledTimes(0);
         expect(option2).toHaveBeenCalledTimes(0);
         expect(option3).toHaveBeenCalledTimes(1);
@@ -403,7 +403,7 @@ describe('Process', () => {
             option3,
           })
         ).start({ call: 2 });
-        expect(result2).toEqual({ call: 2, option1: true });
+        expect(result2).toEqual({ option1: true });
         expect(option1).toHaveBeenCalledTimes(1);
         expect(option2).toHaveBeenCalledTimes(0);
         expect(option3).toHaveBeenCalledTimes(1);
@@ -427,7 +427,7 @@ describe('Process', () => {
               defaultOption
             )
           ).start({ call: 1 });
-          expect(result1).toEqual({ call: 1, defaultOption: true });
+          expect(result1).toEqual({ defaultOption: true });
           expect(option2).toHaveBeenCalledTimes(0);
           expect(defaultOption).toHaveBeenCalledTimes(1);
         });

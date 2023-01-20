@@ -65,26 +65,27 @@ class Process extends Executor {
       return operation;
     });
 
-    super(async (resolve, reject, input = {}) => {
+    super(async (resolve, reject, input) => {
       try {
         resolve(
           await steps.reduce(async (prevStep, operation) => {
             const prevResult = await prevStep;
-            if (prevResult.exit) return prevResult;
+            if (prevResult && prevResult.exit) return prevResult;
 
             let result;
+            const stepInput = { ...input, ...prevResult };
             if (operation instanceof Process) {
-              result = await operation.start(prevResult);
+              result = await operation.start(stepInput);
             } else if (isPromise(operation)) {
               result = await operation;
             } else {
               // should be a function
-              result = await operation(prevResult);
+              result = await operation(stepInput);
             }
 
             check(result, 'output');
             return { ...result, ...prevResult };
-          }, Promise.resolve(input))
+          }, Promise.resolve())
         );
       } catch (error) {
         reject(error);
