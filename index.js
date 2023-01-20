@@ -93,7 +93,7 @@ class Process extends Executor {
     return args => new Process(...list).start(args);
   }
 
-  static switch(key, options, defaultOption = Process.noop) {
+  static switch(key, options, fallback = Process.noop) {
     let errorMessage;
     if (typeof key !== 'string') errorMessage = `Invalid "key" type: ${getType(key)}`;
     else if (!isObject(options)) errorMessage = `Invalid "options" type: ${getType(options)}`;
@@ -103,7 +103,7 @@ class Process extends Executor {
       throw error;
     }
 
-    return args => new Process(options[key] || defaultOption).start(args);
+    return args => new Process(options[key] || fallback).start(args);
   }
 
   static noop = Promise.resolve();
