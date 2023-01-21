@@ -4,6 +4,8 @@ import Process from './index.js';
 // import Process from './dist/index.cjs';
 // const Process = require('./dist/index.cjs');
 
+const [EXIT_CODE] = Object.getOwnPropertySymbols(Process.exit());
+
 describe('Process', () => {
   describe('#constructor', () => {
     describe('when steps are undefined', () => {
@@ -265,7 +267,7 @@ describe('Process', () => {
         const operation2 = jest.fn();
         const operation3 = jest.fn();
         operation1.mockReturnValue({ op1: 4 });
-        operation2.mockReturnValue({ op2: 5, exit: true });
+        operation2.mockReturnValue({ op2: 5, [EXIT_CODE]: true });
         const result = await new Process(
           operation1,
           Process.noop,
@@ -273,7 +275,7 @@ describe('Process', () => {
           operation3,
           Promise.resolve({ promise2: 3 })
         ).start({ input: 0 });
-        expect(result).toEqual({ op1: 4, op2: 5, promise1: 2, exit: true });
+        expect(result).toEqual({ op1: 4, op2: 5, promise1: 2, [EXIT_CODE]: true });
         expect(operation3).not.toHaveBeenCalled();
       });
     });
@@ -354,21 +356,75 @@ describe('Process', () => {
   });
 
   describe('Process.exit', () => {
-    test('should be a promise', () => {
-      expect(Process.exit).toEqual(expect.any(Promise));
+    test('should be a function', () => {
+      expect(Process.exit).toEqual(expect.any(Function));
     });
-    test('should resolve to undefined', () => {
-      expect(Process.exit).resolves.toEqual({ exit: true });
+    test('should return an exit code', () => {
+      const result = Process.exit();
+      const symbols = Object.getOwnPropertySymbols(result);
+      expect(symbols).toHaveLength(1);
+      expect(String(symbols[0])).toEqual('Symbol(exit)');
+      expect(result[symbols[0]]).toBe(true);
     });
-    describe('when used', () => {
+    describe('when used as a step', () => {
       test('should interrupt the process and return empty object', async () => {
-        expect.assertions(3);
-        const operation = jest.fn();
+        expect.assertions(4);
+        const operation1 = jest.fn();
+        const operation2 = jest.fn();
         const result1 = await new Process(Process.exit).start({ a: 1 });
-        const result2 = await new Process(Process.noop, Process.exit, operation).start({ b: 2 });
-        expect(result1).toEqual({ exit: true });
-        expect(result2).toEqual({ exit: true });
-        expect(operation).not.toHaveBeenCalled();
+        const result2 = await new Process(Process.noop, operation1, Process.exit, operation2).start({ b: 2 });
+        expect(result1).toEqual({ [EXIT_CODE]: true });
+        expect(result2).toEqual({ [EXIT_CODE]: true });
+        expect(operation1).toHaveBeenCalledTimes(1);
+        expect(operation2).not.toHaveBeenCalled();
+      });
+    });
+    describe('when used as a return value', () => {
+      describe('when returned', () => {
+        test('should interrupt the process and return passed object', async () => {
+          expect.assertions(5);
+          const operation1 = jest.fn();
+          const operation2 = jest.fn();
+          const operation3 = jest.fn();
+          operation2.mockImplementation(() => Process.exit);
+          const result = await new Process(operation1, operation2, operation3).start({ b: 2 });
+          expect(result).toEqual({ [EXIT_CODE]: true });
+          expect(operation1).toHaveBeenCalledTimes(1);
+          expect(operation2).toHaveBeenCalledTimes(1);
+          expect(operation2).toHaveBeenCalledWith({ b: 2 });
+          expect(operation3).not.toHaveBeenCalled();
+        });
+      });
+      describe('when executed', () => {
+        test('should interrupt the process and return passed object', async () => {
+          expect.assertions(5);
+          const operation1 = jest.fn();
+          const operation2 = jest.fn();
+          const operation3 = jest.fn();
+          operation2.mockImplementation(() => Process.exit({ status: 'interrupted' }));
+          const result = await new Process(operation1, operation2, operation3).start({ b: 2 });
+          expect(result).toEqual({ [EXIT_CODE]: true, status: 'interrupted' });
+          expect(operation1).toHaveBeenCalledTimes(1);
+          expect(operation2).toHaveBeenCalledTimes(1);
+          expect(operation2).toHaveBeenCalledWith({ b: 2 });
+          expect(operation3).not.toHaveBeenCalled();
+        });
+
+        describe('when executed with invalid output', () => {
+          test('should throw an error', async () => {
+            expect.assertions(2);
+            const operation1 = jest.fn();
+            const operation2 = jest.fn();
+            const operation3 = jest.fn();
+            operation2.mockImplementation(() => Process.exit(123));
+            try {
+              await new Process(operation1, operation2, operation3).start({ b: 2 });
+            } catch (error) {
+              expect(error.name).toEqual('Process|ExecutionError');
+              expect(error.message).toEqual('Invalid "output" type: number');
+            }
+          });
+        });
       });
     });
   });
@@ -448,6 +504,34 @@ describe('Process', () => {
         expect(option1).toHaveBeenCalledTimes(1);
         expect(option2).toHaveBeenCalledTimes(0);
         expect(option3).toHaveBeenCalledTimes(1);
+      });
+
+      describe('when exit code is returned', () => {
+        test('should switch exit the process', async () => {
+          expect.assertions(5);
+          const operation1 = jest.fn();
+          const operation2 = jest.fn();
+          operation1.mockReturnValue({ operation1: true });
+          operation2.mockReturnValue({ operation2: true });
+          const option1 = jest.fn();
+          const option3 = jest.fn();
+          option1.mockReturnValue({ option1: true });
+          option3.mockReturnValue({ option3: true });
+          const result1 = await new Process(
+            operation1,
+            Process.switch('option2', {
+              option1,
+              option2: Process.exit,
+              option3,
+            }),
+            operation2
+          ).start({ call: 1 });
+          expect(result1).toEqual({ operation1: true, [EXIT_CODE]: true });
+          expect(operation1).toHaveBeenCalledTimes(1);
+          expect(option1).toHaveBeenCalledTimes(0);
+          expect(option3).toHaveBeenCalledTimes(0);
+          expect(operation2).toHaveBeenCalledTimes(0);
+        });
       });
 
       describe('when default action is provided', () => {

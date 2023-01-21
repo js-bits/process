@@ -16,7 +16,7 @@ const ERRORS = enumerate__default["default"](Prefix('Process|'))`
   ExecutionError
 `;
 
-const EXIT_CODE = { exit: true };
+const EXIT_CODE = Symbol('exit');
 
 const getType = value => {
   if (value === null) return 'null';
@@ -62,9 +62,12 @@ const execute = async (operation, input) => {
     output = await operation.start(input);
   } else if (isPromise(operation)) {
     output = await operation;
+  } else if (operation === exit) {
+    output = exit(); // exit code
   } else {
     output = await operation(input); // supposed be a function
   }
+  if (output === exit) output = exit(); // exit code
   check(output, 'output');
   return output;
 };
@@ -81,6 +84,11 @@ const mixOutput = (previousOutput, currentOutput) => {
     }
   }
   return { ...previousOutput, ...currentOutput };
+};
+
+const exit = output => {
+  check(output, 'output');
+  return { ...output, [EXIT_CODE]: true };
 };
 
 class Process extends executor.Executor {
@@ -105,7 +113,7 @@ class Process extends executor.Executor {
         resolve(
           await steps.reduce(async (previousStep, currentStep) => {
             const previousOutput = await previousStep;
-            if (previousOutput && previousOutput.exit) return previousOutput;
+            if (previousOutput && previousOutput[EXIT_CODE]) return previousOutput;
 
             const currentInput = { ...input, ...previousOutput };
             const currentOutput = await execute(currentStep, currentInput);
@@ -147,10 +155,9 @@ class Process extends executor.Executor {
    */
   static noop = Promise.resolve();
 
-  static exit = Promise.resolve(EXIT_CODE);
+  static exit = exit;
 }
 
 Object.assign(Process, ERRORS);
-Object.freeze(Process);
 
 module.exports = Process;

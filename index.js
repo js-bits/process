@@ -9,7 +9,7 @@ const ERRORS = enumerate(Prefix('Process|'))`
   ExecutionError
 `;
 
-const EXIT_CODE = { exit: true };
+const EXIT_CODE = Symbol('exit');
 
 const getType = value => {
   if (value === null) return 'null';
@@ -55,9 +55,12 @@ const execute = async (operation, input) => {
     output = await operation.start(input);
   } else if (isPromise(operation)) {
     output = await operation;
+  } else if (operation === exit) {
+    output = exit(); // exit code
   } else {
     output = await operation(input); // supposed be a function
   }
+  if (output === exit) output = exit(); // exit code
   check(output, 'output');
   return output;
 };
@@ -68,12 +71,17 @@ const mixOutput = (previousOutput, currentOutput) => {
       Object.prototype.hasOwnProperty.call(currentOutput, key)
     );
     if (overlappingProps.length) {
-      const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
+      const error = new Error(`Conflicting step results for: "${overlappingProps.join('", "')}"`);
       error.name = Process.ExecutionError;
       throw error;
     }
   }
   return { ...previousOutput, ...currentOutput };
+};
+
+const exit = output => {
+  check(output, 'output');
+  return { ...output, [EXIT_CODE]: true };
 };
 
 class Process extends Executor {
@@ -98,7 +106,7 @@ class Process extends Executor {
         resolve(
           await steps.reduce(async (previousStep, currentStep) => {
             const previousOutput = await previousStep;
-            if (previousOutput && previousOutput.exit) return previousOutput;
+            if (previousOutput && previousOutput[EXIT_CODE]) return previousOutput;
 
             const currentInput = { ...input, ...previousOutput };
             const currentOutput = await execute(currentStep, currentInput);
@@ -140,7 +148,7 @@ class Process extends Executor {
    */
   static noop = Promise.resolve();
 
-  static exit = Promise.resolve(EXIT_CODE);
+  static exit = exit;
 }
 
 Object.assign(Process, ERRORS);
