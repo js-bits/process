@@ -138,6 +138,26 @@ describe('Process', () => {
         expect(result).toEqual({ operation1Result: 444, operation2Result: 555 });
       });
 
+      describe('when the same property is returned by different steps', () => {
+        test('should throw an error', async () => {
+          expect.assertions(3);
+          const operation1 = jest.fn();
+          const operation2 = jest.fn();
+          operation1.mockReturnValue({ operationResult: 444 }); // regular function
+          operation2.mockReturnValue(Promise.resolve({ operationResult: 555 })); // async function
+          const process = new Process(operation1, operation2);
+          let result;
+          try {
+            await process.start({ input: 1 });
+          } catch (e) {
+            expect(e).toEqual(expect.any(Error));
+            expect(e.message).toEqual('Conflicting step results for: operationResult');
+            expect(e.name).toEqual('Process|ExecutionError');
+          }
+          return result;
+        });
+      });
+
       describe('when functions throws an error', () => {
         test('should reject with the error', async () => {
           expect.assertions(3);

@@ -69,6 +69,20 @@ const execute = async (operation, input) => {
   return output;
 };
 
+const mixOutput = (previousOutput, currentOutput) => {
+  if (previousOutput && currentOutput) {
+    const overlappingProps = Object.keys(previousOutput).filter(key =>
+      Object.prototype.hasOwnProperty.call(currentOutput, key)
+    );
+    if (overlappingProps.length) {
+      const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
+      error.name = Process.ExecutionError;
+      throw error;
+    }
+  }
+  return { ...previousOutput, ...currentOutput };
+};
+
 class Process extends executor.Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
@@ -93,9 +107,10 @@ class Process extends executor.Executor {
             const previousOutput = await previousStep;
             if (previousOutput && previousOutput.exit) return previousOutput;
 
-            const currentOutput = await execute(currentStep, { ...input, ...previousOutput });
+            const currentInput = { ...input, ...previousOutput };
+            const currentOutput = await execute(currentStep, currentInput);
 
-            return { ...currentOutput, ...previousOutput };
+            return mixOutput(previousOutput, currentOutput);
           }, Promise.resolve())
         );
       } catch (error) {
@@ -103,19 +118,6 @@ class Process extends executor.Executor {
       }
     });
   }
-
-  // if (prevOut || newOut) {
-  //   const overlappingProps = Object.keys(prevOut || []).filter(
-  //     key => newOut && Object.prototype.hasOwnProperty.call(newOut, key)
-  //   );
-  //   if (overlappingProps.length) {
-  //     const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
-  //     error.name = Process.ExecutionError;
-  //     throw error;
-  //   }
-  //   return { ...prevOut, ...newOut };
-  // }
-  // return undefined;
 
   execute(input) {
     check(input, 'input');
