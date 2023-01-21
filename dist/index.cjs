@@ -56,6 +56,19 @@ const check = (value, name) => {
   throw error;
 };
 
+const execute = async (operation, input) => {
+  let output;
+  if (operation instanceof Process) {
+    output = await operation.start(input);
+  } else if (isPromise(operation)) {
+    output = await operation;
+  } else {
+    output = await operation(input); // supposed be a function
+  }
+  check(output, 'output');
+  return output;
+};
+
 class Process extends executor.Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
@@ -63,9 +76,10 @@ class Process extends executor.Executor {
   }
 
   constructor(...args) {
-    // wrap into processes
+    // prepare steps
     const steps = args.map(operation => {
       if (Array.isArray(operation)) {
+        // wrap into a process
         return new Process(...operation);
       }
       check(operation, 'operation');
@@ -75,23 +89,13 @@ class Process extends executor.Executor {
     super(async (resolve, reject, input) => {
       try {
         resolve(
-          await steps.reduce(async (prevStep, operation) => {
-            const prevResult = await prevStep;
-            if (prevResult && prevResult.exit) return prevResult;
+          await steps.reduce(async (previousStep, currentStep) => {
+            const previousOutput = await previousStep;
+            if (previousOutput && previousOutput.exit) return previousOutput;
 
-            let result;
-            const stepInput = { ...input, ...prevResult };
-            if (operation instanceof Process) {
-              result = await operation.start(stepInput);
-            } else if (isPromise(operation)) {
-              result = await operation;
-            } else {
-              // should be a function
-              result = await operation(stepInput);
-            }
+            const currentOutput = await execute(currentStep, { ...input, ...previousOutput });
 
-            check(result, 'output');
-            return { ...result, ...prevResult };
+            return { ...currentOutput, ...previousOutput };
           }, Promise.resolve())
         );
       } catch (error) {
@@ -99,30 +103,6 @@ class Process extends executor.Executor {
       }
     });
   }
-
-  // super(async (resolve, reject, input) => {
-  //   try {
-  //     resolve(
-  //       await steps.reduce(async (prevStep, operation) => {
-  //         const prevOut = await prevStep;
-  //         if (prevOut && prevOut.exit) return prevOut;
-
-  //         const newOut = await this.runStep(operation, { ...input, ...prevOut });
-  //         let output;
-  //         if (operation instanceof Process) {
-  //           output = await operation.start(input);
-  //         } else if (isPromise(operation)) {
-  //           output = await operation;
-  //         } else {
-  //           output = await operation(input); // supposed be a function
-  //         }
-  //         check(output, 'output');
-  //       }, Promise.resolve())
-  //     );
-  //   } catch (error) {
-  //     reject(error);
-  //   }
-  // });
 
   // if (prevOut || newOut) {
   //   const overlappingProps = Object.keys(prevOut || []).filter(
@@ -136,22 +116,6 @@ class Process extends executor.Executor {
   //   return { ...prevOut, ...newOut };
   // }
   // return undefined;
-
-  // // eslint-disable-next-line class-methods-use-this
-  // async runStep(operation, input) {
-  //   let output;
-  //   if (operation instanceof Process) {
-  //     output = await operation.start(input);
-  //   } else if (isPromise(operation)) {
-  //     output = await operation;
-  //   } else {
-  //     output = await operation(input); // supposed be a function
-  //   }
-  //   check(output, 'output');
-  //   return output;
-  // }
-
-  // eslint-disable-next-line class-methods-use-this
 
   execute(input) {
     check(input, 'input');
