@@ -75,7 +75,7 @@ const mixOutput = (previousOutput, currentOutput) => {
       Object.prototype.hasOwnProperty.call(currentOutput, key)
     );
     if (overlappingProps.length) {
-      const error = new Error(`Conflicting step results for: ${overlappingProps.join(', ')}`);
+      const error = new Error(`Conflicting step results for: "${overlappingProps.join('", "')}"`);
       error.name = Process.ExecutionError;
       throw error;
     }
