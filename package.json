@@ -6,13 +6,16 @@
     "javascript",
     "asynchronous",
     "async",
+    "synchronous",
+    "sync",
     "processing",
     "process",
     "multi-step",
     "multistep",
     "steps",
     "sequence",
-    "sequential"
+    "sequential",
+    "consecutive"
   ],
   "type": "module",
   "main": "./dist/index.cjs",
