@@ -30,7 +30,7 @@ const isObject = value => value && typeof value === 'object' && value.constructo
 // fixes issues with aws-xray-sdk wrapping global Promise
 const isPromise = value => value instanceof Promise || value instanceof Process.noop.constructor;
 
-const check = (value, key) => {
+const validate = (value, key) => {
   let isValid;
   let errorName = Process.InitializationError;
   // eslint-disable-next-line default-case
@@ -69,7 +69,7 @@ const execute = async (operation, input) => {
     output = await operation(input); // supposed be a function
   }
   if (output === exit) output = exit(); // exit code
-  check(output, KEYS.OUTPUT);
+  validate(output, KEYS.OUTPUT);
   return output;
 };
 
@@ -88,7 +88,7 @@ const mixOutput = (previousOutput, currentOutput) => {
 };
 
 const exit = output => {
-  check(output, KEYS.OUTPUT);
+  validate(output, KEYS.OUTPUT);
   return { ...output, [EXIT_CODE]: true };
 };
 
@@ -105,7 +105,7 @@ class Process extends Executor {
         // wrap into a process
         return new Process(...operation);
       }
-      check(operation, KEYS.OPERATION);
+      validate(operation, KEYS.OPERATION);
       return operation;
     });
 
@@ -129,7 +129,7 @@ class Process extends Executor {
   }
 
   execute(input) {
-    check(input, KEYS.INPUT);
+    validate(input, KEYS.INPUT);
     return super.execute(input);
   }
 
@@ -147,8 +147,8 @@ class Process extends Executor {
   }
 
   static switch(key, options, fallback = Process.noop) {
-    check(key, KEYS.SWITCH_KEY);
-    check(options, KEYS.SWITCH_OPTIONS);
+    validate(key, KEYS.SWITCH_KEY);
+    validate(options, KEYS.SWITCH_OPTIONS);
     return input => new Process(options[key] || fallback).start(input);
   }
 
