@@ -104,7 +104,31 @@ The return value of the whole process will be all step results combined.
 
 ## Process.steps() shortcut
 
-[TBD]
+There is `Process.steps()` method available for your convenience.
+It's just a shortcut to `new Process(...steps).start(input)`.
+
+```javascript
+...
+const result = Process.steps(step1, step2, step3)(inputParams)
+```
+
+You can also use it for better structuring of your source-code.
+
+```javascript
+...
+const operation1 = Process.steps(
+  step1,
+  step2,
+  step3,
+);
+const operation2 = Process.steps(
+  step4,
+  step5,
+  step6,
+);
+const process = new Process(operation1, operation2);
+...
+```
 
 ## Exit strategy (Process.exit)
 
