@@ -67,7 +67,7 @@ describe('Process', () => {
             new Process(3);
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
-            expect(error.message).toEqual('Invalid "OPERATION" type: number');
+            expect(error.message).toEqual('Invalid "operation" type: number');
           }
         });
       });
@@ -79,7 +79,7 @@ describe('Process', () => {
             new Process(null);
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
-            expect(error.message).toEqual('Invalid "OPERATION" type: null');
+            expect(error.message).toEqual('Invalid "operation" type: null');
           }
         });
       });
@@ -91,7 +91,7 @@ describe('Process', () => {
             new Process('string');
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
-            expect(error.message).toEqual('Invalid "OPERATION" type: string');
+            expect(error.message).toEqual('Invalid "operation" type: string');
           }
         });
       });
@@ -103,7 +103,7 @@ describe('Process', () => {
             new Process([() => {}, 'string']);
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
-            expect(error.message).toEqual('Invalid "OPERATION" type: string');
+            expect(error.message).toEqual('Invalid "operation" type: string');
           }
         });
       });
@@ -288,7 +288,7 @@ describe('Process', () => {
             new Process().start(null);
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');
-            expect(error.message).toEqual('Invalid "INPUT" type: null');
+            expect(error.message).toEqual('Invalid "input" type: null');
           }
         });
       });
@@ -299,7 +299,7 @@ describe('Process', () => {
             new Process().start(new Promise(() => {}));
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');
-            expect(error.message).toEqual('Invalid "INPUT" type: [object Promise]');
+            expect(error.message).toEqual('Invalid "input" type: [object Promise]');
           }
         });
       });
@@ -316,7 +316,7 @@ describe('Process', () => {
             await process.start({ input: 111 });
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');
-            expect(error.message).toEqual('Invalid "OUTPUT" type: boolean');
+            expect(error.message).toEqual('Invalid "output" type: boolean');
           }
           expect(operation2).not.toHaveBeenCalled();
         });
@@ -330,7 +330,7 @@ describe('Process', () => {
             await process.start();
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');
-            expect(error.message).toEqual('Invalid "OUTPUT" type: null');
+            expect(error.message).toEqual('Invalid "output" type: null');
           }
         });
       });
@@ -421,7 +421,7 @@ describe('Process', () => {
               await new Process(operation1, operation2, operation3).start({ b: 2 });
             } catch (error) {
               expect(error.name).toEqual('Process|ExecutionError');
-              expect(error.message).toEqual('Invalid "OUTPUT" type: number');
+              expect(error.message).toEqual('Invalid "output" type: number');
             }
           });
         });
@@ -563,7 +563,7 @@ describe('Process', () => {
               Process.switch('', {}, 123)({});
             } catch (error) {
               expect(error.name).toEqual('Process|InitializationError');
-              expect(error.message).toEqual('Invalid "OPERATION" type: number');
+              expect(error.message).toEqual('Invalid "operation" type: number');
             }
           });
         });
@@ -576,7 +576,7 @@ describe('Process', () => {
           Process.switch(123, 123);
         } catch (error) {
           expect(error.name).toEqual('Process|InitializationError');
-          expect(error.message).toEqual('Invalid "SWITCH_KEY" type: number');
+          expect(error.message).toEqual('Invalid "switch_key" type: number');
         }
       });
     });
@@ -588,7 +588,7 @@ describe('Process', () => {
             Process.switch('', null);
           } catch (error) {
             expect(error.name).toEqual('Process|InitializationError');
-            expect(error.message).toEqual('Invalid "SWITCH_OPTIONS" type: null');
+            expect(error.message).toEqual('Invalid "switch_options" type: null');
           }
         });
       });
@@ -599,7 +599,7 @@ describe('Process', () => {
             Process.switch('', new Promise(() => {}));
           } catch (error) {
             expect(error.name).toEqual('Process|InitializationError');
-            expect(error.message).toEqual('Invalid "SWITCH_OPTIONS" type: [object Promise]');
+            expect(error.message).toEqual('Invalid "switch_options" type: [object Promise]');
           }
         });
       });

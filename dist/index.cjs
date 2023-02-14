@@ -59,7 +59,7 @@ const validate = (value, key) => {
   }
   if (isValid) return true;
 
-  const error = new Error(`Invalid "${key.description}" type: ${getType(value)}`);
+  const error = new Error(`Invalid "${key.description.toLowerCase()}" type: ${getType(value)}`);
   error.name = errorName;
   throw error;
 };
