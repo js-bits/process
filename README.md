@@ -106,6 +106,8 @@ The return value of the whole process will be all step results combined.
 
 ## Process.steps() shortcut
 
+## Process.noop shortcut
+
 ## Process.switch() conditional processing
 
 ## Notes

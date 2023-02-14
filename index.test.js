@@ -260,7 +260,7 @@ describe('Process', () => {
       });
     });
 
-    describe('when exit:true is returned', () => {
+    describe('when exit code is returned', () => {
       test('should interrupt the process', async () => {
         expect.assertions(2);
         const operation1 = jest.fn();
