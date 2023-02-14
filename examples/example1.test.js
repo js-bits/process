@@ -12,7 +12,7 @@ describe('Examples', () => {
 
   test('Example 1', async () => {
     expect.assertions(5);
-    const value = await example;
+    await example;
     expect(console.log).toHaveBeenCalledTimes(4);
     expect(console.log.mock.calls[0]).toEqual(['step1']);
     expect(console.log.mock.calls[1]).toEqual(['step2']);

@@ -65,16 +65,48 @@ Let's say you have a long complicated process that consists of some operations (
 Alternatively you can combine steps into groups like this:
 
 ```javascript
+...
 const operation1 = [step1, step2];
 const operation2 = [step3, step4];
 const process = new Process(operation1, operation2);
+...
 ```
 
 The result will be the same as before, but the code looks more structured and logically organized.
 
 ## Passing input parameters and returning processing results
 
-[TBD]
+You can pass as many input parameters as you need (as an object) into `.start()` method of a `Process` instance.
+Steps of the process may return some results (also as an object) if necessary, but not required to do so.
+Each step of the process will receive (as an argument) all input parameters as well as results of all preceding steps,
+which means that the step logic can be implemented to behave differently depending on what happened before.
+The return value of the whole process will be all step results combined.
+
+```javascript
+(async () => {
+  const step1 = async args => {
+    console.log(args); // { inputParam: 1 }
+    return { step1Result: 'success' };
+  };
+  const step2 = async args => {
+    console.log(args); // { inputParam: 1, step1Result: 'success' }
+    return { step2Result: 'success' };
+  };
+  const step3 = async args => {
+    console.log(args); // { inputParam: 1, step1Result: 'success', step2Result: 'success' }
+    return { step3Result: 'success' };
+  };
+  const process = new Process(step1, step2, step3);
+  const result = await process.start({ inputParam: 1 });
+  console.log('result', result); // 'result', { step1Result: 'success', step2Result: 'success', step3Result: 'success' }
+})();
+```
+
+## Exit strategy (Process.exit)
+
+## Process.steps() shortcut
+
+## Process.switch() conditional processing
 
 ## Notes
 
