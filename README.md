@@ -102,13 +102,47 @@ The return value of the whole process will be all step results combined.
 })();
 ```
 
-## Exit strategy (Process.exit)
-
-[TBD]
-
 ## Process.steps() shortcut
 
 [TBD]
+
+## Exit strategy (Process.exit)
+
+Most likely, there will be some exceptional situations when you have to interrupt your processing.
+You can account for that using `Process.exit` method.
+
+```javascript
+const step1 = async () => {
+  console.log('step1');
+  return { step1Result: 'failed' };
+};
+const step2 = async ({ step1Result }) => {
+  console.log('step2');
+  if (step1Result === 'failed') return Process.exit;
+  return { step2Result: 'success' };
+};
+const step3 = async () => {
+  // this step won't be performed
+  console.log('step3');
+  return { step3Result: 'success' };
+};
+const process = new Process(step1, step2, step3);
+const result = await process.start({ inputParam: 1 });
+console.log(result);
+// step1
+// step2
+// { step1Result: 'failed', [Symbol(exit)]: true }
+```
+
+If you'd like to also return some additional information related to the process interruption,
+just use `Process.exit` as a function. It only accepts objects as an argument.
+
+```javascript
+...
+if (step1Result === 'failed') return Process.exit({ exitReason: 'Previous step has failed'});
+...
+// { step1Result: 'failed', [Symbol(exit)]: true, exitReason: 'Previous step has failed' }
+```
 
 ## Process.switch() conditional processing
 
@@ -116,4 +150,4 @@ The return value of the whole process will be all step results combined.
 
 ## Notes
 
-- A process is a one time operation. You have to create a new instance each time you need to run the process.
+- A process is a one-off operation. You have to create a new instance each time you need to run the same process.
