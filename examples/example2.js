@@ -15,5 +15,5 @@ export default (async () => {
   };
   const process = new Process(step1, step2, step3);
   const result = await process.start({ inputParam: 1 });
-  console.log('result', result); // 'result', { step1Result: 'success', step2Result: 'success', step3Result: 'success' }
+  console.log(result); // { step1Result: 'success', step2Result: 'success', step3Result: 'success' }
 })();

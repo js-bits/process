@@ -18,7 +18,6 @@ describe('Examples', () => {
     expect(console.log.mock.calls[1]).toEqual([{ inputParam: 1, step1Result: 'success' }]);
     expect(console.log.mock.calls[2]).toEqual([{ inputParam: 1, step1Result: 'success', step2Result: 'success' }]);
     expect(console.log.mock.calls[3]).toEqual([
-      'result',
       { step1Result: 'success', step2Result: 'success', step3Result: 'success' },
     ]);
   });
