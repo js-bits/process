@@ -9,6 +9,14 @@ const ERRORS = enumerate(Prefix('Process|'))`
   ExecutionError
 `;
 
+const KEYS = enumerate`
+  OPERATION
+  SWITCH_KEY
+  SWITCH_OPTIONS
+  INPUT
+  OUTPUT
+`;
+
 const EXIT_CODE = Symbol('exit');
 
 const getType = value => {
@@ -22,29 +30,29 @@ const isObject = value => value && typeof value === 'object' && value.constructo
 // fixes issues with aws-xray-sdk wrapping global Promise
 const isPromise = value => value instanceof Promise || value instanceof Process.noop.constructor;
 
-const check = (value, name) => {
+const check = (value, key) => {
   let isValid;
   let errorName = Process.InitializationError;
   // eslint-disable-next-line default-case
-  switch (name) {
-    case 'operation':
+  switch (key) {
+    case KEYS.OPERATION:
       isValid = value instanceof Process || isPromise(value) || typeof value === 'function';
       break;
-    case 'switch:key':
+    case KEYS.SWITCH_KEY:
       isValid = typeof value === 'string';
       break;
-    case 'switch:options':
+    case KEYS.SWITCH_OPTIONS:
       isValid = isObject(value);
       break;
-    case 'input':
-    case 'output':
+    case KEYS.INPUT:
+    case KEYS.OUTPUT:
       isValid = value === undefined || isObject(value);
       errorName = Process.ExecutionError;
       break;
   }
   if (isValid) return true;
 
-  const error = new Error(`Invalid "${name}" type: ${getType(value)}`);
+  const error = new Error(`Invalid "${key.description}" type: ${getType(value)}`);
   error.name = errorName;
   throw error;
 };
@@ -61,7 +69,7 @@ const execute = async (operation, input) => {
     output = await operation(input); // supposed be a function
   }
   if (output === exit) output = exit(); // exit code
-  check(output, 'output');
+  check(output, KEYS.OUTPUT);
   return output;
 };
 
@@ -80,7 +88,7 @@ const mixOutput = (previousOutput, currentOutput) => {
 };
 
 const exit = output => {
-  check(output, 'output');
+  check(output, KEYS.OUTPUT);
   return { ...output, [EXIT_CODE]: true };
 };
 
@@ -97,7 +105,7 @@ class Process extends Executor {
         // wrap into a process
         return new Process(...operation);
       }
-      check(operation, 'operation');
+      check(operation, KEYS.OPERATION);
       return operation;
     });
 
@@ -121,7 +129,7 @@ class Process extends Executor {
   }
 
   execute(input) {
-    check(input, 'input');
+    check(input, KEYS.INPUT);
     return super.execute(input);
   }
 
@@ -139,8 +147,8 @@ class Process extends Executor {
   }
 
   static switch(key, options, fallback = Process.noop) {
-    check(key, 'switch:key');
-    check(options, 'switch:options');
+    check(key, KEYS.SWITCH_KEY);
+    check(options, KEYS.SWITCH_OPTIONS);
     return input => new Process(options[key] || fallback).start(input);
   }
 
