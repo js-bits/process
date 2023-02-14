@@ -131,7 +131,8 @@ class Process extends Executor {
   start = this.execute;
 
   /**
-   * Shortcut
+   * Just a shortcut for `new Process(...steps).start(input)`
+   * @returns {Function}
    */
   static steps(...list) {
     return input => new Process(...list).start(input);
