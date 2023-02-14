@@ -3,14 +3,14 @@ import Process from '../index.js';
 export default (async () => {
   const step1 = async () => {
     console.log('step1');
-    return { step1Result: 'failed' };
+    return { step1Result: 'success' };
   };
-  const step2 = async ({ step1Result }) => {
+  const step2 = async () => {
     console.log('step2');
-    if (step1Result === 'failed') return Process.exit;
-    return { step2Result: 'success' };
+    return Process.exit;
   };
   const step3 = async () => {
+    // this step won't be performed
     console.log('step3');
     return { step3Result: 'success' };
   };
@@ -19,5 +19,5 @@ export default (async () => {
   console.log(result);
   // step1
   // step2
-  // { step1Result: 'failed', [Symbol(exit)]: true }
+  // { step1Result: 'success', [Symbol(exit)]: true }
 })();

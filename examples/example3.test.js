@@ -16,7 +16,7 @@ describe('Examples', () => {
     await example;
     expect(console.log.mock.calls[0]).toEqual(['step1']);
     expect(console.log.mock.calls[1]).toEqual(['step2']);
-    expect(console.log.mock.calls[2]).toEqual([{ step1Result: 'failed', ...Process.exit() }]);
+    expect(console.log.mock.calls[2]).toEqual([{ step1Result: 'success', ...Process.exit() }]);
     expect(console.log).toHaveBeenCalledTimes(3);
   });
 });

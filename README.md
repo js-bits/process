@@ -138,12 +138,11 @@ You can account for that using `Process.exit` method.
 ```javascript
 const step1 = async () => {
   console.log('step1');
-  return { step1Result: 'failed' };
+  return { step1Result: 'success' };
 };
-const step2 = async ({ step1Result }) => {
+const step2 = async () => {
   console.log('step2');
-  if (step1Result === 'failed') return Process.exit;
-  return { step2Result: 'success' };
+  return Process.exit;
 };
 const step3 = async () => {
   // this step won't be performed
@@ -155,17 +154,17 @@ const result = await process.start({ inputParam: 1 });
 console.log(result);
 // step1
 // step2
-// { step1Result: 'failed', [Symbol(exit)]: true }
+// { step1Result: 'success', [Symbol(exit)]: true }
 ```
 
 If you'd like to also return some additional information related to the process interruption,
-just use `Process.exit` as a function. It only accepts objects as an argument.
+just use `Process.exit` as a function (only accepts objects as an argument).
 
 ```javascript
 ...
-if (step1Result === 'failed') return Process.exit({ exitReason: 'Previous step has failed'});
+return Process.exit({ exitReason: 'Something bad has happened'});
 ...
-// { step1Result: 'failed', [Symbol(exit)]: true, exitReason: 'Previous step has failed' }
+// { step1Result: 'success', [Symbol(exit)]: true, exitReason: 'Something bad has happened' }
 ```
 
 ## Process.switch() conditional processing
