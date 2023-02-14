@@ -149,7 +149,7 @@ class Process extends Executor {
   static switch(key, options, fallback = Process.noop) {
     validate(key, KEYS.SWITCH_KEY);
     validate(options, KEYS.SWITCH_OPTIONS);
-    return input => new Process(options[key] || fallback).start(input);
+    return input => new Process(options[input[key]] || fallback).start(input);
   }
 
   /**

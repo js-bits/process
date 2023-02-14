@@ -483,23 +483,23 @@ describe('Process', () => {
         option2.mockReturnValue({ option2: true });
         option3.mockReturnValue({ option3: true });
         const result1 = await new Process(
-          Process.switch('option3', {
+          Process.switch('flag', {
             option1,
             option2,
             option3,
           })
-        ).start({ call: 1 });
+        ).start({ flag: 'option3' });
         expect(result1).toEqual({ option3: true });
         expect(option1).toHaveBeenCalledTimes(0);
         expect(option2).toHaveBeenCalledTimes(0);
         expect(option3).toHaveBeenCalledTimes(1);
         const result2 = await new Process(
-          Process.switch('option1', {
+          Process.switch('flag', {
             option1,
             option2,
             option3,
           })
-        ).start({ call: 2 });
+        ).start({ flag: 'option1' });
         expect(result2).toEqual({ option1: true });
         expect(option1).toHaveBeenCalledTimes(1);
         expect(option2).toHaveBeenCalledTimes(0);
@@ -519,13 +519,13 @@ describe('Process', () => {
           option3.mockReturnValue({ option3: true });
           const result1 = await new Process(
             operation1,
-            Process.switch('option2', {
+            Process.switch('flag', {
               option1,
               option2: Process.exit,
               option3,
             }),
             operation2
-          ).start({ call: 1 });
+          ).start({ flag: 'option2' });
           expect(result1).toEqual({ operation1: true, [EXIT_CODE]: true });
           expect(operation1).toHaveBeenCalledTimes(1);
           expect(option1).toHaveBeenCalledTimes(0);
