@@ -28,7 +28,7 @@
   },
   "scripts": {
     "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports default",
-    "lint": "eslint '**/*.{js,jsx}'",
+    "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
     "prepare": "husky install",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
     "test-cjs": "jest --verbose",
@@ -48,9 +48,9 @@
     "@js-bits/executor": "^1.1.0"
   },
   "devDependencies": {
-    "@js-bits/formalinter": "^0.3.1",
+    "@js-bits/formalinter": "^1.0.3",
     "@types/jest": "^29.1.1",
-    "husky": "^8.0.1",
+    "husky": "^8.0.3",
     "jest": "^29.1.2",
     "jest-environment-jsdom": "^29.1.2",
     "rollup": "^2.79.1"
