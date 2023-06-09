@@ -23,7 +23,6 @@ const KEYS = enumerate__default["default"]`
   INPUT
   OUTPUT
   EXIT
-  ROLLBACK
 `;
 
 const getType = value => {
@@ -133,8 +132,6 @@ class Process extends executor.Executor {
         reject(error);
       }
     });
-
-    // Object.freeze(this);
   }
 
   execute(input) {

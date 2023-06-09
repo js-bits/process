@@ -43,6 +43,10 @@
   "engines": {
     "node": ">=12"
   },
+  "dependencies": {
+    "@js-bits/enumerate": "^0.8.1",
+    "@js-bits/executor": "^1.1.0"
+  },
   "devDependencies": {
     "@js-bits/formalinter": "^0.3.1",
     "@types/jest": "^29.1.1",
@@ -66,9 +70,5 @@
         "testEnvironment": "jsdom"
       }
     ]
-  },
-  "dependencies": {
-    "@js-bits/enumerate": "^0.8.1",
-    "@js-bits/executor": "^1.1.0"
   }
 }
