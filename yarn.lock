@@ -854,10 +854,10 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
-"@types/jest@^29.1.1":
-  version "29.5.2"
-  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.5.2.tgz#86b4afc86e3a8f3005b297ed8a72494f89e6395b"
-  integrity sha512-mSoZVJF5YzGVCk+FsDxzDuH7s+SCkzrgKZzf0Z0T2WudhBUPoF6ktoTPC4R0ZoCPCV5xUvuU6ias5NvxcBcMMg==
+"@types/jest@29.4.3":
+  version "29.4.3"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-29.4.3.tgz#2575bf579815e647f5a6c0f2267d2b142aa72619"
+  integrity sha512-rQ+fXtBHSDfgoTwGLLNuZ27fHpp14mCZSxGUZ3MlNExwJno5hz0uXEWtXfQlE8vaZmYAa6atbR9rpHk+NnlRaw==
   dependencies:
     expect "^29.0.0"
     pretty-format "^29.0.0"
@@ -2704,7 +2704,7 @@ jest-each@^29.5.0:
     jest-util "^29.5.0"
     pretty-format "^29.5.0"
 
-jest-environment-jsdom@^29.1.2:
+jest-environment-jsdom@^29.5.0:
   version "29.5.0"
   resolved "https://registry.yarnpkg.com/jest-environment-jsdom/-/jest-environment-jsdom-29.5.0.tgz#cfe86ebaf1453f3297b5ff3470fbe94739c960cb"
   integrity sha512-/KG8yEK4aN8ak56yFVdqFDzKNHgF4BAymCx2LbPNPsUshUlfAl0eX402Xm1pt+eoG9SLZEUVifqXtX8SK74KCw==
@@ -2961,7 +2961,7 @@ jest-worker@^29.5.0:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-jest@^29.1.2:
+jest@^29.5.0:
   version "29.5.0"
   resolved "https://registry.yarnpkg.com/jest/-/jest-29.5.0.tgz#f75157622f5ce7ad53028f2f8888ab53e1f1f24e"
   integrity sha512-juMg3he2uru1QoXX078zTa7pO85QyB9xajZc6bU+d9yEGwrKX6+vGmJQ3UdVZsvTEUARIdObzH68QItim6OSSQ==
