@@ -27,7 +27,7 @@
     }
   },
   "scripts": {
-    "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports default",
+    "build": "rollup ./index.js --format cjs --file dist/index.cjs --exports default --preferConst",
     "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
     "prepare": "husky install",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
@@ -44,8 +44,8 @@
     "node": ">=12"
   },
   "dependencies": {
-    "@js-bits/enumerate": "^0.8.1",
-    "@js-bits/executor": "^1.1.0"
+    "@js-bits/enumerate": "^1.0.17",
+    "@js-bits/executor": "^2.0.4"
   },
   "devDependencies": {
     "@js-bits/formalinter": "^1.0.3",

@@ -663,35 +663,27 @@
     "@jridgewell/resolve-uri" "3.1.0"
     "@jridgewell/sourcemap-codec" "1.4.14"
 
-"@js-bits/enumerate@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.10.0.tgz#65c26a9074e2a04fa45e2f9c36d8e2451e1fdf51"
-  integrity sha512-mcsKOT7/duvRWy8h9ThEhj8VzpTREZakaYP4Pg9j467yhNd/3MIllBfbPo+D4iSD4vZ62uN1kIRcFsPW3yzJFA==
-
-"@js-bits/enumerate@^0.5.1":
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.5.2.tgz#fa48b4800f77305ae833e0b0fad63f229fd89f6c"
-  integrity sha512-VAOE7fk+bg72VEFPOAb/z0cjhwUgTMgQxJ2zl1Cx2PLTbiUZ04UjtmVJt828SlynzQSqE/jYu83gS28dNvgMGA==
-
-"@js-bits/enumerate@^0.8.0", "@js-bits/enumerate@^0.8.1":
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-0.8.4.tgz#c4debf8c1c0d8c1f2f6309ec451aa01ece614b33"
-  integrity sha512-3RVDWTgxDvXKm6p0LT1duaBNIxGS4reMzjen8bpdihlUZASMannizrf9XOv6vtLVFI4dAzJFHMY+CW790mGoNQ==
+"@js-bits/enumerate@^1.0.17":
+  version "1.0.17"
+  resolved "https://registry.yarnpkg.com/@js-bits/enumerate/-/enumerate-1.0.17.tgz#38de70907ac2800f84c4793695b8a9995a3a8b30"
+  integrity sha512-uxRG1vFoCB0lOliStRfFRzExm/KCQF9QAuakrfhn3iUJC1iv5mCgrwxLnxcVepYYz2Rwo7A7CNHgvzie7MepMw==
+  dependencies:
+    "@js-bits/typedef-utils" "^1.0.6"
 
 "@js-bits/eslint-config@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@js-bits/eslint-config/-/eslint-config-1.0.3.tgz#cfd341f6f016528838a987ea7c008e7936e75593"
   integrity sha512-jtFNBpj/2YxjMsB5PV6AgFxNhphfZRp6R9fVs8y9jfeN5y4eS8imHeQ9MWnNWqmK6dvgFEmbOejsw3g0ELhFpQ==
 
-"@js-bits/executor@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@js-bits/executor/-/executor-1.1.0.tgz#4d9c80772be9828d7c2bb1e78f845a751e21c982"
-  integrity sha512-pV//KAXhRY/CRMNCFw8Xk3oIbrD3WOO4r34U2iO4w+uufkfujelTHFA2eP2Uq2igUdSBQcdcRQyIcOfJ/HHwPw==
+"@js-bits/executor@^2.0.4":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@js-bits/executor/-/executor-2.0.4.tgz#2ed95f5caaac0dabb06a711d5d38f5a8e9e898ea"
+  integrity sha512-bfMrXkQplu1NNReCqnJz9DNEm7QkAaHpoiVd5kV9I1ATGLpLM7YHApjJhDgVcDz0AsUZDgigSrpf4TVvgYvucw==
   dependencies:
-    "@js-bits/enumerate" "^0.8.0"
-    "@js-bits/performance" "^0.1.2"
-    "@js-bits/timeout" "^0.2.1"
-    "@js-bits/xpromise" "^0.3.0"
+    "@js-bits/enumerate" "^1.0.17"
+    "@js-bits/performance" "^1.0.2"
+    "@js-bits/timeout" "^1.0.8"
+    "@js-bits/xpromise" "^1.0.8"
 
 "@js-bits/formalinter@^1.0.3":
   version "1.0.3"
@@ -716,32 +708,32 @@
     prettier "^2.8.8"
     typescript "^4.8.4"
 
-"@js-bits/performance@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@js-bits/performance/-/performance-0.1.2.tgz#1518c1cfebfd57adbc907d147dfcfb5d2875d943"
-  integrity sha512-ofdBLUwwiunc3rn2KKg3bly3cgrTMJmFjOwSbgz5SKlGNt9WYKz+SDS8E6ddIjVY3KJh786OoQLuwA1eLsS9Hw==
-
-"@js-bits/timeout@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@js-bits/timeout/-/timeout-0.2.1.tgz#ac9f436e6fe6bccb9aaa154dae617d43a17fbf20"
-  integrity sha512-JTFZG75yUUSp6zKCCVW7RKfgH/2JzD28Ake6YCyxn6BhMXcKpd/Z0GmBnEg35MBRwpQ8b8rHFPFXfUFQTWlDyQ==
+"@js-bits/performance@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@js-bits/performance/-/performance-1.0.2.tgz#65623faf93c4aee173d4f493cab558cd8b0d79d2"
+  integrity sha512-dPdrsXmS0YdS3tW8PbLPrqOMX5eBkLPKdRExGgapS0fxyL7dTVttyw543UHQt09a0TckmIbqP5bP7apdHpdwqQ==
   dependencies:
-    "@js-bits/enumerate" "^0.5.1"
-    "@js-bits/xpromise" "^0.2.1"
+    "@types/node" "^20.2.5"
 
-"@js-bits/xpromise@^0.2.1":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@js-bits/xpromise/-/xpromise-0.2.2.tgz#551ebdc7fadeca602032ffdc22a661e18768fe00"
-  integrity sha512-cDN86dvytgX3ZENjtFIoldKSFvvrOhsrDSVRrXH7h4hvmVMkYSNTf+GK+9C7JEpHQ+hGEqRxSSTTAzivRex5Ow==
+"@js-bits/timeout@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@js-bits/timeout/-/timeout-1.0.8.tgz#6644e3d9f888d8b76b5361b4876fbebd97292f24"
+  integrity sha512-5D5c4sCMcNvM51OaTFqom2H66owDGno0UN7rvGE0gzTufUrKvDEbxNoa64fOH+vsNgwSRZkL6aQSwUmVGfdL5Q==
   dependencies:
-    "@js-bits/enumerate" "^0.8.0"
+    "@js-bits/enumerate" "^1.0.17"
+    "@js-bits/xpromise" "^1.0.8"
 
-"@js-bits/xpromise@^0.3.0":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@js-bits/xpromise/-/xpromise-0.3.3.tgz#ddab45bea0e4e8586d0ff4c20815e6591ff728aa"
-  integrity sha512-VgfCja2aBCb+ekrl/zbMZcw4XNniYF5jIGn387iN3PuTLf5Aqf7xmELjymDlMCdtQX/qW0J2RdyRoALxAwbbBw==
+"@js-bits/typedef-utils@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@js-bits/typedef-utils/-/typedef-utils-1.0.6.tgz#c3fd39dba685ced143080002714a4c7da950b1b2"
+  integrity sha512-tO5y4IYguKXtlu9rOSxItruNhsn4SXQiGgxLVEtaVmX89d0xYPQ+TQ1T/HvlXx/pTFlCG1poejwLuSXjQwTOVQ==
+
+"@js-bits/xpromise@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@js-bits/xpromise/-/xpromise-1.0.8.tgz#be7fae3cfde3c8e597c6392f7371ab28186646ab"
+  integrity sha512-eR2XkAR6Nb4/TcKgCgw4qnMeXsB/UBlWOCJIsjbqpKc/gvRO7VbZpuOUJTqEf7rQ5V7HkEkSM1fNiFD2biFlSA==
   dependencies:
-    "@js-bits/enumerate" "^0.10.0"
+    "@js-bits/enumerate" "^1.0.17"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
@@ -881,7 +873,7 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==
 
-"@types/node@*", "@types/node@^20.2.3":
+"@types/node@*", "@types/node@^20.2.3", "@types/node@^20.2.5":
   version "20.2.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-20.2.5.tgz#26d295f3570323b2837d322180dfbf1ba156fefb"
   integrity sha512-JJulVEQXmiY9Px5axXHeYGLSjhkZEnD+MDPDGbCbIAbMslkKwmygtZFy1X6s/075Yo94sf8GuSlFfPzysQrWZQ==
