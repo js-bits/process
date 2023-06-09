@@ -154,7 +154,7 @@ const result = await process.start({ inputParam: 1 });
 console.log(result);
 // step1
 // step2
-// { step1Result: 'success', [Symbol(exit)]: true }
+// { step1Result: 'success', [Symbol(EXIT)]: true }
 ```
 
 If you'd like to also return some additional information related to the process interruption,
@@ -164,7 +164,7 @@ just use `Process.exit` as a function (only accepts objects as an argument).
 ...
 return Process.exit({ exitReason: 'Something bad has happened'});
 ...
-// { step1Result: 'success', [Symbol(exit)]: true, exitReason: 'Something bad has happened' }
+// { step1Result: 'success', [Symbol(EXIT)]: true, exitReason: 'Something bad has happened' }
 ```
 
 ## Conditional processing with Process.switch()

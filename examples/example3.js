@@ -19,5 +19,5 @@ export default (async () => {
   console.log(result);
   // step1
   // step2
-  // { step1Result: 'success', [Symbol(exit)]: true }
+  // { step1Result: 'success', [Symbol(EXIT)]: true }
 })();

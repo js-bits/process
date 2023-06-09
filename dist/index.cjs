@@ -22,9 +22,9 @@ const KEYS = enumerate__default["default"]`
   SWITCH_OPTIONS
   INPUT
   OUTPUT
+  EXIT
+  ROLLBACK
 `;
-
-const EXIT_CODE = Symbol('exit');
 
 const getType = value => {
   if (value === null) return 'null';
@@ -96,7 +96,7 @@ const mixOutput = (previousOutput, currentOutput) => {
 
 const exit = output => {
   validate(output, KEYS.OUTPUT);
-  return { ...output, [EXIT_CODE]: true };
+  return { ...output, [KEYS.EXIT]: true };
 };
 
 class Process extends executor.Executor {
@@ -121,7 +121,7 @@ class Process extends executor.Executor {
         resolve(
           await steps.reduce(async (previousStep, currentStep) => {
             const previousOutput = await previousStep;
-            if (previousOutput && previousOutput[EXIT_CODE]) return previousOutput;
+            if (previousOutput && previousOutput[KEYS.EXIT]) return previousOutput;
 
             const currentInput = { ...input, ...previousOutput };
             const currentOutput = await execute(currentStep, currentInput);
@@ -133,6 +133,8 @@ class Process extends executor.Executor {
         reject(error);
       }
     });
+
+    // Object.freeze(this);
   }
 
   execute(input) {

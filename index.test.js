@@ -363,7 +363,7 @@ describe('Process', () => {
       const result = Process.exit();
       const symbols = Object.getOwnPropertySymbols(result);
       expect(symbols).toHaveLength(1);
-      expect(String(symbols[0])).toEqual('Symbol(exit)');
+      expect(String(symbols[0])).toEqual('Symbol(EXIT)');
       expect(result[symbols[0]]).toBe(true);
     });
     describe('when used as a step', () => {
