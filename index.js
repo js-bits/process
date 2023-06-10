@@ -4,33 +4,55 @@ import { Executor } from '@js-bits/executor';
 
 const { Prefix } = enumerate;
 
-const ERRORS = enumerate(Prefix('Process|'))`
+const ERRORS = enumerate.ts(
+  `
   InitializationError
   ExecutionError
-`;
+`,
+  Prefix('Process|')
+);
 
-const KEYS = enumerate`
+const KEYS = enumerate.ts(`
   OPERATION
   SWITCH_KEY
   SWITCH_OPTIONS
   INPUT
   OUTPUT
   EXIT
-`;
+`);
 
+/**
+ * @param {any} value
+ * @returns {string}
+ */
 const getType = value => {
   if (value === null) return 'null';
   if (typeof value === 'object') return String(value);
   return typeof value;
 };
 
-const isObject = value => value && typeof value === 'object' && value.constructor === Object;
+/**
+ * @param {any} value
+ * @returns {boolean}
+ */
+const isObject = value => !!(value && typeof value === 'object' && value.constructor === Object);
 
-// fixes issues with aws-xray-sdk wrapping global Promise
+/**
+ * Fixes issues with aws-xray-sdk wrapping global Promise
+ * @param {any} value
+ * @returns {boolean}
+ */
 const isPromise = value => value instanceof Promise || value instanceof Process.noop.constructor;
 
+/**
+ * @param {any} value
+ * @param {typeof KEYS[Exclude<keyof KEYS, symbol>]} key
+ * @returns
+ */
 const validate = (value, key) => {
-  let isValid;
+  /** @type {boolean} */
+  let isValid = false;
+  /** @type {typeof ERRORS[Exclude<keyof ERRORS, symbol>]} */
   let errorName = Process.InitializationError;
   // eslint-disable-next-line default-case
   switch (key) {
@@ -51,11 +73,30 @@ const validate = (value, key) => {
   }
   if (isValid) return true;
 
-  const error = new Error(`Invalid "${key.description.toLowerCase()}" type: ${getType(value)}`);
+  const error = new Error(`Invalid "${key.description?.toLowerCase()}" type: ${getType(value)}`);
   error.name = errorName;
   throw error;
 };
 
+/** @typedef {{ [key: string]: any }} Input */
+
+/** @typedef {{ [key: string]: any }} Output */
+
+/** @typedef {Output | Process.exit | void | undefined} OperationResult */
+
+/**
+ * @typedef {(input?: Input) => OperationResult | Promise<OperationResult>} FunctionStep
+ */
+
+/**
+ * @typedef {Process<OperationResult> | Promise<OperationResult> | FunctionStep} Operation
+ */
+
+/**
+ * @param {Operation} operation
+ * @param {Input} [input]
+ * @returns {Promise<Output>}
+ */
 const execute = async (operation, input) => {
   let output;
   if (operation instanceof Process) {
@@ -65,13 +106,18 @@ const execute = async (operation, input) => {
   } else if (operation === exit) {
     output = exit(); // exit code
   } else {
-    output = await operation(input); // supposed be a function
+    output = await /** @type {FunctionStep} */ (operation)(input); // supposed be a function
   }
   if (output === exit) output = exit(); // exit code
   validate(output, KEYS.OUTPUT);
   return output;
 };
 
+/**
+ * @param {object} previousOutput
+ * @param {object} currentOutput
+ * @returns
+ */
 const mixOutput = (previousOutput, currentOutput) => {
   if (previousOutput && currentOutput) {
     const overlappingProps = Object.keys(previousOutput).filter(key =>
@@ -86,17 +132,29 @@ const mixOutput = (previousOutput, currentOutput) => {
   return { ...previousOutput, ...currentOutput };
 };
 
+/**
+ * @param {Output} [output]
+ * @returns {Output & { [KEYS.EXIT]: true }}
+ */
 const exit = output => {
   validate(output, KEYS.OUTPUT);
   return { ...output, [KEYS.EXIT]: true };
 };
 
+/**
+ * @template T
+ * @extends {Executor<T>}
+ */
+// @ts-ignore
 class Process extends Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
     return 'Process';
   }
 
+  /**
+   * @param  {(Operation | Operation[])[]} args
+   */
   constructor(...args) {
     // prepare steps
     const steps = args.map(operation => {
@@ -108,7 +166,7 @@ class Process extends Executor {
       return operation;
     });
 
-    super(async (resolve, reject, input) => {
+    super(async (resolve, reject, /** @type {Input} */ input) => {
       try {
         resolve(
           await steps.reduce(async (previousStep, currentStep) => {
@@ -127,6 +185,10 @@ class Process extends Executor {
     });
   }
 
+  /**
+   * @param {Input} [input]
+   * @returns {this}
+   */
   execute(input) {
     validate(input, KEYS.INPUT);
     return super.execute(input);
@@ -139,26 +201,36 @@ class Process extends Executor {
 
   /**
    * Just a shortcut for `new Process(...steps).start(input)`
-   * @returns {Function}
+   * @param {Operation[]} list
+   * @returns {FunctionStep}
    */
   static steps(...list) {
-    return input => new Process(...list).start(input);
-  }
-
-  static switch(key, options, fallback = Process.noop) {
-    validate(key, KEYS.SWITCH_KEY);
-    validate(options, KEYS.SWITCH_OPTIONS);
-    return input => new Process(options[input[key]] || fallback).start(input);
+    return /** @type {FunctionStep} */ input => new Process(...list).start(input);
   }
 
   /**
-   * @type {Promise}
+   * @param {string} key
+   * @param {{ [key: string]: Operation | Operation[]}} options
+   * @param {Operation} fallback
+   * @returns
+   */
+  static switch(key, options, fallback = Process.noop) {
+    validate(key, KEYS.SWITCH_KEY);
+    validate(options, KEYS.SWITCH_OPTIONS);
+    return /** @type {FunctionStep} */ input =>
+      new Process((input && options[/** @type {string} */ (input[key])]) || fallback).start(input);
+  }
+
+  /**
+   * @type {Promise<void>}
    */
   static noop = Promise.resolve();
 
   static exit = exit;
 }
 
-Object.assign(Process, ERRORS);
+// Assigning properties one by one helps typescript to declare the namespace properly
+Process.ExecutionError = ERRORS.ExecutionError;
+Process.InitializationError = ERRORS.InitializationError;
 
 export default Process;

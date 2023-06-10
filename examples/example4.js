@@ -1,3 +1,4 @@
+// @ts-nocheck
 import Process from '../index.js';
 
 export default (async () => {

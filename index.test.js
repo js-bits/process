@@ -64,6 +64,7 @@ describe('Process', () => {
         test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             new Process(3);
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
@@ -76,6 +77,7 @@ describe('Process', () => {
         test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             new Process(null);
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
@@ -88,6 +90,7 @@ describe('Process', () => {
         test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             new Process('string');
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
@@ -100,6 +103,7 @@ describe('Process', () => {
         test('should throw InitializationError', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2322)
             new Process([() => {}, 'string']);
           } catch (error) {
             expect(error.name).toEqual(Process.InitializationError);
@@ -122,8 +126,7 @@ describe('Process', () => {
     describe('when called without input', () => {
       test('should use empty object as input', async () => {
         expect.assertions(3);
-        const operation = jest.fn();
-        operation.mockReturnValue({ result: 444 });
+        const operation = jest.fn(() => ({ result: 444 }));
         const process = new Process(operation);
         const result = await process.start();
         expect(operation).toHaveBeenCalledTimes(1);
@@ -135,10 +138,8 @@ describe('Process', () => {
     describe('when functions are used', () => {
       test('should be able pass execution results through the process', async () => {
         expect.assertions(5);
-        const operation1 = jest.fn();
-        const operation2 = jest.fn();
-        operation1.mockReturnValue({ operation1Result: 444 }); // regular function
-        operation2.mockReturnValue(Promise.resolve({ operation2Result: 555 })); // async function
+        const operation1 = jest.fn(() => ({ operation1Result: 444 })); // regular function
+        const operation2 = jest.fn(() => Promise.resolve({ operation2Result: 555 })); // async function
         const process = new Process(operation1, operation2);
         const result = await process.start({ input: 1 });
         expect(operation1).toHaveBeenCalledTimes(1);
@@ -150,12 +151,10 @@ describe('Process', () => {
 
       describe('when the same property is returned by different steps', () => {
         test('should throw an error', async () => {
-          expect.assertions(5);
-          const operation1 = jest.fn();
-          const operation2 = jest.fn();
-          const operation3 = jest.fn();
-          operation1.mockReturnValue({ operationResult: 444, out: 1 }); // regular function
-          operation2.mockReturnValue(Promise.resolve({ operationResult: 555, out: 2 })); // async function
+          expect.assertions(6);
+          const operation1 = jest.fn(() => ({ operationResult: 444, out: 1 })); // regular function
+          const operation2 = jest.fn(() => Promise.resolve({ operationResult: 555, out: 2 })); // async function
+          const operation3 = jest.fn(() => {});
           const process = new Process(operation1, operation2, operation3);
           let result = 'unchanged';
           try {
@@ -164,6 +163,7 @@ describe('Process', () => {
             expect(e).toEqual(expect.any(Error));
             expect(e.message).toEqual('Conflicting step results for: "operationResult", "out"');
             expect(e.name).toEqual('Process|ExecutionError');
+            expect(e.name).toEqual(Process.ExecutionError);
           }
           expect(operation3).not.toHaveBeenCalled();
           expect(result).toEqual('unchanged');
@@ -174,13 +174,11 @@ describe('Process', () => {
       describe('when functions throws an error', () => {
         test('should reject with the error', async () => {
           expect.assertions(3);
-          const operation1 = jest.fn();
-          const operation2 = jest.fn();
           const testError = new Error('sync error');
-          operation1.mockImplementation(() => {
+          const operation1 = jest.fn(() => {
             throw testError;
           });
-          operation2.mockReturnValue(Promise.resolve({ operation2Result: 555 })); // async function
+          const operation2 = jest.fn(() => Promise.resolve({ operation2Result: 555 })); // async function
           const process = new Process(operation1, operation2);
           let result = 'unchanged';
           try {
@@ -205,11 +203,9 @@ describe('Process', () => {
       describe('when functions throw an error', () => {
         test('should reject with the error', done => {
           expect.assertions(3);
-          const operation1 = jest.fn();
-          const operation2 = jest.fn();
           const testError = new Error('async error');
-          operation1.mockImplementation(async () => Promise.reject(testError)); // async function
-          operation2.mockReturnValue(Promise.resolve({ operation2Result: 333 })); // async function
+          const operation1 = jest.fn(async () => Promise.reject(testError)); // async function
+          const operation2 = jest.fn(() => Promise.resolve({ operation2Result: 333 })); // async function
           const process = new Process(operation1, Process.noop, operation2);
           let result = 'unchanged';
           process
@@ -230,10 +226,8 @@ describe('Process', () => {
     describe('when another process are used', () => {
       test('should be able pass execution results through the process', async () => {
         expect.assertions(3);
-        const operation1 = jest.fn();
-        const operation2 = jest.fn();
-        operation1.mockReturnValue({ op1: 44 }); // regular function
-        operation2.mockReturnValue(Promise.resolve({ op2: 55 })); // async function
+        const operation1 = jest.fn(() => ({ op1: 44 })); // regular function
+        const operation2 = jest.fn(() => Promise.resolve({ op2: 55 })); // async function
         const process = new Process(Promise.resolve({ promise1: 22 }), Process.noop, operation2);
         const result = await new Process(operation1, process, Promise.resolve({ promise2: 33 })).start({ input: 11 });
         expect(operation2).toHaveBeenCalledTimes(1);
@@ -245,10 +239,8 @@ describe('Process', () => {
     describe('when an array are used', () => {
       test('should be able pass execution results through the process', async () => {
         expect.assertions(3);
-        const operation1 = jest.fn();
-        const operation2 = jest.fn();
-        operation1.mockReturnValue({ op1: 55 }); // regular function
-        operation2.mockReturnValue(Promise.resolve({ op2: 66 })); // async function
+        const operation1 = jest.fn(() => ({ op1: 55 })); // regular function
+        const operation2 = jest.fn(() => Promise.resolve({ op2: 66 })); // async function
         const result = await new Process(
           operation1,
           [Promise.resolve({ promise1: 222 }), Process.noop, operation2],
@@ -263,11 +255,9 @@ describe('Process', () => {
     describe('when exit code is returned', () => {
       test('should interrupt the process', async () => {
         expect.assertions(2);
-        const operation1 = jest.fn();
-        const operation2 = jest.fn();
-        const operation3 = jest.fn();
-        operation1.mockReturnValue({ op1: 4 });
-        operation2.mockReturnValue({ op2: 5, [EXIT_CODE]: true });
+        const operation1 = jest.fn(() => ({ op1: 4 }));
+        const operation2 = jest.fn(() => ({ op2: 5, [EXIT_CODE]: true }));
+        const operation3 = jest.fn(() => {});
         const result = await new Process(
           operation1,
           Process.noop,
@@ -285,6 +275,7 @@ describe('Process', () => {
         test('should throw ExecutionError error', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             new Process().start(null);
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');
@@ -311,6 +302,7 @@ describe('Process', () => {
           expect.assertions(3);
           const operation1 = Promise.resolve(true);
           const operation2 = jest.fn();
+          // @ts-expect-error ts(2345)
           const process = new Process(operation1, Process.noop, operation2);
           try {
             await process.start({ input: 111 });
@@ -325,6 +317,7 @@ describe('Process', () => {
         test('should throw ExecutionError error', async () => {
           expect.assertions(2);
           const operation1 = Promise.resolve(null);
+          // @ts-expect-error ts(2345)
           const process = new Process(operation1);
           try {
             await process.start();
@@ -360,6 +353,7 @@ describe('Process', () => {
       expect(Process.exit).toEqual(expect.any(Function));
     });
     test('should return an exit code', () => {
+      /** @type {{ [key: symbol]: boolean }} */
       const result = Process.exit();
       const symbols = Object.getOwnPropertySymbols(result);
       expect(symbols).toHaveLength(1);
@@ -369,8 +363,8 @@ describe('Process', () => {
     describe('when used as a step', () => {
       test('should interrupt the process and return empty object', async () => {
         expect.assertions(4);
-        const operation1 = jest.fn();
-        const operation2 = jest.fn();
+        const operation1 = jest.fn(() => {});
+        const operation2 = jest.fn(() => {});
         const result1 = await new Process(Process.exit).start({ a: 1 });
         const result2 = await new Process(Process.noop, operation1, Process.exit, operation2).start({ b: 2 });
         expect(result1).toEqual({ [EXIT_CODE]: true });
@@ -383,10 +377,9 @@ describe('Process', () => {
       describe('when returned', () => {
         test('should interrupt the process and return passed object', async () => {
           expect.assertions(5);
-          const operation1 = jest.fn();
-          const operation2 = jest.fn();
-          const operation3 = jest.fn();
-          operation2.mockImplementation(() => Process.exit);
+          const operation1 = jest.fn(() => {});
+          const operation2 = jest.fn(() => Process.exit);
+          const operation3 = jest.fn(() => {});
           const result = await new Process(operation1, operation2, operation3).start({ b: 2 });
           expect(result).toEqual({ [EXIT_CODE]: true });
           expect(operation1).toHaveBeenCalledTimes(1);
@@ -398,10 +391,9 @@ describe('Process', () => {
       describe('when executed', () => {
         test('should interrupt the process and return passed object', async () => {
           expect.assertions(5);
-          const operation1 = jest.fn();
-          const operation2 = jest.fn();
-          const operation3 = jest.fn();
-          operation2.mockImplementation(() => Process.exit({ status: 'interrupted' }));
+          const operation1 = jest.fn(() => {});
+          const operation2 = jest.fn(() => Process.exit({ status: 'interrupted' }));
+          const operation3 = jest.fn(() => {});
           const result = await new Process(operation1, operation2, operation3).start({ b: 2 });
           expect(result).toEqual({ [EXIT_CODE]: true, status: 'interrupted' });
           expect(operation1).toHaveBeenCalledTimes(1);
@@ -413,10 +405,10 @@ describe('Process', () => {
         describe('when executed with invalid output', () => {
           test('should throw an error', async () => {
             expect.assertions(2);
-            const operation1 = jest.fn();
-            const operation2 = jest.fn();
-            const operation3 = jest.fn();
-            operation2.mockImplementation(() => Process.exit(123));
+            const operation1 = jest.fn(() => {});
+            // @ts-expect-error ts(2345)
+            const operation2 = jest.fn(() => Process.exit(123));
+            const operation3 = jest.fn(() => {});
             try {
               await new Process(operation1, operation2, operation3).start({ b: 2 });
             } catch (error) {
@@ -445,10 +437,8 @@ describe('Process', () => {
     describe('when used', () => {
       test('should interrupt the process and return empty object', async () => {
         expect.assertions(4);
-        const step1 = jest.fn();
-        const step2 = jest.fn();
-        step1.mockReturnValue({ step1: true });
-        step2.mockReturnValue({ step2: true });
+        const step1 = jest.fn(() => ({ step1: true }));
+        const step2 = jest.fn(() => ({ step2: true }));
         const operation = Process.steps(step1, step2);
         const result1 = await new Process(operation).start({ call: 1 });
         const result2 = await new Process(operation).start({ call: 2 });
@@ -476,12 +466,9 @@ describe('Process', () => {
     describe('when used', () => {
       test('should switch between available options', async () => {
         expect.assertions(8);
-        const option1 = jest.fn();
-        const option2 = jest.fn();
-        const option3 = jest.fn();
-        option1.mockReturnValue({ option1: true });
-        option2.mockReturnValue({ option2: true });
-        option3.mockReturnValue({ option3: true });
+        const option1 = jest.fn(() => ({ option1: true }));
+        const option2 = jest.fn(() => ({ option2: true }));
+        const option3 = jest.fn(() => ({ option3: true }));
         const result1 = await new Process(
           Process.switch('flag', {
             option1,
@@ -509,14 +496,10 @@ describe('Process', () => {
       describe('when exit code is returned', () => {
         test('should switch exit the process', async () => {
           expect.assertions(5);
-          const operation1 = jest.fn();
-          const operation2 = jest.fn();
-          operation1.mockReturnValue({ operation1: true });
-          operation2.mockReturnValue({ operation2: true });
-          const option1 = jest.fn();
-          const option3 = jest.fn();
-          option1.mockReturnValue({ option1: true });
-          option3.mockReturnValue({ option3: true });
+          const operation1 = jest.fn(() => ({ operation1: true }));
+          const operation2 = jest.fn(() => ({ operation2: true }));
+          const option1 = jest.fn(() => ({ option1: true }));
+          const option3 = jest.fn(() => ({ option3: true }));
           const result1 = await new Process(
             operation1,
             Process.switch('flag', {
@@ -538,10 +521,8 @@ describe('Process', () => {
         test("should use is other options don't match", async () => {
           expect.assertions(3);
           const option1 = Process.noop;
-          const option2 = jest.fn();
-          const defaultOption = jest.fn();
-          option2.mockReturnValue({ option2: true });
-          defaultOption.mockReturnValue({ defaultOption: true });
+          const option2 = jest.fn(() => ({ option2: true }));
+          const defaultOption = jest.fn(() => ({ defaultOption: true }));
           const result1 = await new Process(
             Process.switch(
               'unknown',
@@ -560,6 +541,7 @@ describe('Process', () => {
           test('should throw InitializationError error', () => {
             expect.assertions(2);
             try {
+              // @ts-expect-error ts(2345)
               Process.switch('', {}, 123)({});
             } catch (error) {
               expect(error.name).toEqual('Process|InitializationError');
@@ -573,6 +555,7 @@ describe('Process', () => {
       test('should throw InitializationError error', () => {
         expect.assertions(2);
         try {
+          // @ts-expect-error ts(2345)
           Process.switch(123, 123);
         } catch (error) {
           expect(error.name).toEqual('Process|InitializationError');
@@ -585,6 +568,7 @@ describe('Process', () => {
         test('should throw InitializationError error', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             Process.switch('', null);
           } catch (error) {
             expect(error.name).toEqual('Process|InitializationError');
@@ -596,6 +580,7 @@ describe('Process', () => {
         test('should throw InitializationError error', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             Process.switch('', new Promise(() => {}));
           } catch (error) {
             expect(error.name).toEqual('Process|InitializationError');
