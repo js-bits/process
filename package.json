@@ -4,6 +4,7 @@
   "description": "Asynchronous multi-step processing",
   "keywords": [
     "javascript",
+    "typescript",
     "asynchronous",
     "async",
     "synchronous",
@@ -20,6 +21,7 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "require": "./dist/index.cjs",
