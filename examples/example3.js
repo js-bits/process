@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Process from '../index.js';
 
 export default (async () => {

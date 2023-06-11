@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @ts-nocheck
 import Process from '../index.js';
 

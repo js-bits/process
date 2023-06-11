@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { jest } from '@jest/globals';
 import { Executor } from '@js-bits/executor';
 import Process from './index.js';

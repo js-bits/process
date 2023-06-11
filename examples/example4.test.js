@@ -1,6 +1,5 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { jest } from '@jest/globals';
-import Process from '../index.js';
 
 jest.spyOn(global.console, 'log');
 // eslint-disable-next-line import/first

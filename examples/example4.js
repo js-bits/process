@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @ts-nocheck
 import Process from '../index.js';
 
@@ -19,6 +20,7 @@ export default (async () => {
   const checkNeedsUpdate = ({ newState, item }) => {
     if (item.state === newState) return Process.exit;
     console.log('item needs update');
+    return undefined;
   };
   const publishItem = simulateLatency(() => {
     console.log('item published');
