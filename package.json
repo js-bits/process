@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@js-bits/enumerate": "^1.0.18",
-    "@js-bits/executor": "^2.0.6"
+    "@js-bits/executor": "^2.0.10"
   },
   "devDependencies": {
     "@js-bits/formalinter": "^1.0.3",

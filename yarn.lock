@@ -695,15 +695,15 @@
   resolved "https://registry.yarnpkg.com/@js-bits/eslint-config/-/eslint-config-1.0.3.tgz#cfd341f6f016528838a987ea7c008e7936e75593"
   integrity sha512-jtFNBpj/2YxjMsB5PV6AgFxNhphfZRp6R9fVs8y9jfeN5y4eS8imHeQ9MWnNWqmK6dvgFEmbOejsw3g0ELhFpQ==
 
-"@js-bits/executor@^2.0.6":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@js-bits/executor/-/executor-2.0.6.tgz#453683630c77d42448dc1e950c3713cd85d5610b"
-  integrity sha512-HvqZ4Jj6U6oxOVvUWHgPNo7ic0Ni92nzQ2AW5tG2YYFcMrQHpGR46VILum4lBAH/DF1Gi9goINJF/7Aw6Z2F0A==
+"@js-bits/executor@^2.0.10":
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/@js-bits/executor/-/executor-2.0.10.tgz#2d3438aeb37ff492e904f2009a76c998fb381981"
+  integrity sha512-pV2VEmrzO4p8K75NkA9TTMD6PW5XMZ6LHGIAKE1hnlzP0YR69r2s2m0Gbj3orWoDXeHfqIl3rBXyzzzK+xKVYg==
   dependencies:
     "@js-bits/enumerate" "^1.0.17"
     "@js-bits/performance" "^1.0.2"
-    "@js-bits/timeout" "^1.0.9"
-    "@js-bits/xpromise" "^1.0.10"
+    "@js-bits/timeout" "^1.0.11"
+    "@js-bits/xpromise" "^1.0.13"
 
 "@js-bits/formalinter@^1.0.3":
   version "1.0.3"
@@ -740,23 +740,23 @@
   dependencies:
     "@types/node" "^20.2.5"
 
-"@js-bits/timeout@^1.0.9":
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/@js-bits/timeout/-/timeout-1.0.9.tgz#76a3ceac791e9eeb6270f71934d112230dec4501"
-  integrity sha512-bApurjhYJFWj30q9WjjLXFLV7Ma0ky1AT0OuLhX+JDvXCjIUlJjQxwLvONQO+y3vI7mdbLuYdVmuze5gUwO93Q==
+"@js-bits/timeout@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@js-bits/timeout/-/timeout-1.0.11.tgz#b63f0f139da927f1e03993c6ea6518115734d433"
+  integrity sha512-uCfKpf60uhRrEEaD2vEAhitWzzEf110wjuzYTIxwFj1m8gsVzZZbqMS9j9HSazacFIOyEQztyoeSyIjzIZsG7w==
   dependencies:
     "@js-bits/enumerate" "^1.0.17"
-    "@js-bits/xpromise" "^1.0.10"
+    "@js-bits/xpromise" "^1.0.13"
 
 "@js-bits/typedef-utils@^1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@js-bits/typedef-utils/-/typedef-utils-1.0.6.tgz#c3fd39dba685ced143080002714a4c7da950b1b2"
   integrity sha512-tO5y4IYguKXtlu9rOSxItruNhsn4SXQiGgxLVEtaVmX89d0xYPQ+TQ1T/HvlXx/pTFlCG1poejwLuSXjQwTOVQ==
 
-"@js-bits/xpromise@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@js-bits/xpromise/-/xpromise-1.0.10.tgz#afcc5f9fc61f4d1fb1bdbc4b58d1a21938390334"
-  integrity sha512-VHiMICXpxaoHo5Gsj7EyjvPeudGKPf+mcftSq0zxu089oQU238UPBafgyAiTRsBIQm0AabNuB1VAW+/hVirtHw==
+"@js-bits/xpromise@^1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@js-bits/xpromise/-/xpromise-1.0.13.tgz#63d455496db767629b29caf6b218add05d0b7d9b"
+  integrity sha512-MZzwprS28Xcs1Acq0ZEffAsMh0/y6xJFZvFn2jN2XoELqqpiPkPvht8bsGjCpTVflqVIYdLVpvwsn1n906jFJQ==
   dependencies:
     "@js-bits/enumerate" "^1.0.17"
 

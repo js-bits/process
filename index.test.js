@@ -287,6 +287,7 @@ describe('Process', () => {
         test('should throw ExecutionError error', () => {
           expect.assertions(2);
           try {
+            // @ts-expect-error ts(2345)
             new Process().start(new Promise(() => {}));
           } catch (error) {
             expect(error.name).toEqual('Process|ExecutionError');

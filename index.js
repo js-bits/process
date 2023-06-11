@@ -4,14 +4,6 @@ import { Executor } from '@js-bits/executor';
 
 const { Prefix } = enumerate;
 
-const ERRORS = enumerate.ts(
-  `
-  InitializationError
-  ExecutionError
-`,
-  Prefix('Process|')
-);
-
 const KEYS = enumerate.ts(`
   OPERATION
   SWITCH_KEY
@@ -53,7 +45,7 @@ const validate = (value, key) => {
   /** @type {boolean} */
   let isValid = false;
   /** @type {typeof ERRORS[Exclude<keyof ERRORS, symbol>]} */
-  let errorName = Process.InitializationError;
+  let errorName = ERRORS.InitializationError;
   // eslint-disable-next-line default-case
   switch (key) {
     case KEYS.OPERATION:
@@ -68,7 +60,7 @@ const validate = (value, key) => {
     case KEYS.INPUT:
     case KEYS.OUTPUT:
       isValid = value === undefined || isObject(value);
-      errorName = Process.ExecutionError;
+      errorName = ERRORS.ExecutionError;
       break;
   }
   if (isValid) return true;
@@ -78,9 +70,15 @@ const validate = (value, key) => {
   throw error;
 };
 
-/** @typedef {{ [key: string]: any }} Input */
+/**
+ * Plain object (excluding promises)
+ * @typedef {{ [key: string]: any } & { then?: void }} Input
+ */
 
-/** @typedef {{ [key: string]: any }} Output */
+/**
+ * Plain object (excluding promises)
+ * @typedef {{ [key: string]: any } & { then?: void }} Output
+ */
 
 /** @typedef {Output | Process.exit | void | undefined} OperationResult */
 
@@ -145,11 +143,10 @@ const exit = output => {
  * @template T
  * @extends {Executor<T>}
  */
-// @ts-ignore
 class Process extends Executor {
   // eslint-disable-next-line class-methods-use-this
   get [Symbol.toStringTag]() {
-    return 'Process';
+    return Process.name;
   }
 
   /**
@@ -229,7 +226,15 @@ class Process extends Executor {
   static exit = exit;
 }
 
-// Assigning properties one by one helps typescript to declare the namespace properly
+const ERRORS = enumerate.ts(
+  `
+  InitializationError
+  ExecutionError
+`,
+  Prefix(`${Process.name}|`)
+);
+
+// Assigning properties like this helps typescript to declare the namespace properly
 Process.ExecutionError = ERRORS.ExecutionError;
 Process.InitializationError = ERRORS.InitializationError;
 
