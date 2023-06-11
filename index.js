@@ -2,8 +2,6 @@
 import enumerate from '@js-bits/enumerate';
 import { Executor } from '@js-bits/executor';
 
-const { Prefix } = enumerate;
-
 const KEYS = enumerate.ts(`
   OPERATION
   SWITCH_KEY
@@ -231,7 +229,7 @@ const ERRORS = enumerate.ts(
   InitializationError
   ExecutionError
 `,
-  Prefix(`${Process.name}|`)
+  `${Process.name}|`
 );
 
 // Assigning properties like this helps typescript to declare the namespace properly
