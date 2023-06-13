@@ -29,8 +29,9 @@
     }
   },
   "scripts": {
-    "build": "rimraf ./dist && yarn build:dts && rollup ./index.js --format cjs --file dist/index.cjs --exports default --preferConst",
-    "build:dts": "tsc ./index.js --allowJs --emitDeclarationOnly --declaration --esModuleInterop --outDir dist && node node_modules/@js-bits/enumerate/scripts/replace-unique-symbols ./dist/index.d.ts",
+    "build": "rimraf ./dist && yarn build:dts && rollup ./index.js --format cjs --file dist/index.cjs --exports default --no-strict --generatedCode.constBindings",
+    "build:dts": "tsc ./index.js --allowJs --emitDeclarationOnly --declaration --esModuleInterop --outDir dist && yarn prepare:dts",
+    "prepare:dts": "node node_modules/@js-bits/enumerate/scripts/replace-unique-symbols ./dist/index.d.ts && node node_modules/@js-bits/enumerate/scripts/replace-enum-ref ./dist/index.d.ts && node ./node_modules/@js-bits/typedef-utils/scripts/prepare-dts.js ./dist/index.d.ts",
     "lint": "tsc --noEmit && eslint '**/*.{js,jsx,ts,tsx}'",
     "prepare": "husky install",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --verbose",
@@ -47,8 +48,8 @@
     "node": ">=12"
   },
   "dependencies": {
-    "@js-bits/enumerate": "^1.0.18",
-    "@js-bits/executor": "^2.0.11"
+    "@js-bits/enumerate": "^1.0.20",
+    "@js-bits/executor": "^2.0.13"
   },
   "devDependencies": {
     "@js-bits/formalinter": "^1.0.3",

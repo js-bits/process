@@ -69,29 +69,9 @@ const validate = (value, key) => {
 };
 
 /**
- * Plain object (excluding promises)
- * @typedef {{ [key: string]: any } & { then?: void }} Input
- */
-
-/**
- * Plain object (excluding promises)
- * @typedef {{ [key: string]: any } & { then?: void }} Output
- */
-
-/** @typedef {Output | Process.exit | void | undefined} OperationResult */
-
-/**
- * @typedef {(input?: Input) => OperationResult | Promise<OperationResult>} FunctionStep
- */
-
-/**
- * @typedef {Process<OperationResult> | Promise<OperationResult> | FunctionStep} Operation
- */
-
-/**
- * @param {Operation} operation
- * @param {Input} [input]
- * @returns {Promise<Output>}
+ * @param {import('./types').Operation} operation
+ * @param {import('./types').Input} [input]
+ * @returns {Promise<import('./types').Output>}
  */
 const execute = async (operation, input) => {
   let output;
@@ -102,7 +82,7 @@ const execute = async (operation, input) => {
   } else if (operation === exit) {
     output = exit(); // exit code
   } else {
-    output = await /** @type {FunctionStep} */ (operation)(input); // supposed be a function
+    output = await /** @type {import('./types').FunctionStep} */ (operation)(input); // supposed be a function
   }
   if (output === exit) output = exit(); // exit code
   validate(output, KEYS.OUTPUT);
@@ -129,8 +109,8 @@ const mixOutput = (previousOutput, currentOutput) => {
 };
 
 /**
- * @param {Output} [output]
- * @returns {Output & { [KEYS.EXIT]: true }}
+ * @param {import('./types').Output} [output]
+ * @returns {import('./types').Output & { [KEYS.EXIT]: true }}
  */
 const exit = output => {
   validate(output, KEYS.OUTPUT);
@@ -148,7 +128,7 @@ class Process extends Executor {
   }
 
   /**
-   * @param  {(Operation | Operation[])[]} args
+   * @param  {(import('./types').Operation | import('./types').Operation[])[]} args
    */
   constructor(...args) {
     // prepare steps
@@ -161,14 +141,14 @@ class Process extends Executor {
       return operation;
     });
 
-    super(async (resolve, reject, /** @type {Input} */ input) => {
+    super(async (resolve, reject, input) => {
       try {
         resolve(
           await steps.reduce(async (previousStep, currentStep) => {
             const previousOutput = await previousStep;
             if (previousOutput && previousOutput[KEYS.EXIT]) return previousOutput;
 
-            const currentInput = { ...input, ...previousOutput };
+            const currentInput = { .../** @type {import('./types').Input} */ (input), ...previousOutput };
             const currentOutput = await execute(currentStep, currentInput);
 
             return mixOutput(previousOutput, currentOutput);
@@ -181,7 +161,7 @@ class Process extends Executor {
   }
 
   /**
-   * @param {Input} [input]
+   * @param {import('./types').Input} [input]
    * @returns {this}
    */
   execute(input) {
@@ -196,23 +176,23 @@ class Process extends Executor {
 
   /**
    * Just a shortcut for `new Process(...steps).start(input)`
-   * @param {Operation[]} list
-   * @returns {FunctionStep}
+   * @param {import('./types').Operation[]} list
+   * @returns {import('./types').FunctionStep}
    */
   static steps(...list) {
-    return /** @type {FunctionStep} */ input => new Process(...list).start(input);
+    return /** @type {import('./types').FunctionStep} */ input => new Process(...list).start(input);
   }
 
   /**
    * @param {string} key
-   * @param {{ [key: string]: Operation | Operation[]}} options
-   * @param {Operation} fallback
+   * @param {{ [key: string]: import('./types').Operation | import('./types').Operation[]}} options
+   * @param {import('./types').Operation} fallback
    * @returns
    */
   static switch(key, options, fallback = Process.noop) {
     validate(key, KEYS.SWITCH_KEY);
     validate(options, KEYS.SWITCH_OPTIONS);
-    return /** @type {FunctionStep} */ input =>
+    return /** @type {import('./types').FunctionStep} */ input =>
       new Process((input && options[/** @type {string} */ (input[key])]) || fallback).start(input);
   }
 
